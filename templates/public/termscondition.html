@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block title %}Terms & Conditions{% endblock %}
+{% block content %}
+<div style="max-width:860px; margin:0 auto; padding:3rem 2rem;">
+  <div style="text-align:center; margin-bottom:3rem;">
+    <h1 style="font-size:2.2rem; margin-bottom:0.5rem;">Terms &amp; <span class="gradient-text">Conditions</span></h1>
+    <p style="color:var(--clr-muted);">Last updated: March 2025</p>
+  </div>
+  {% set sections = [
+    ("Acceptance of Terms", "fas fa-file-contract",
+     "By accessing and using HeartCare AI, you accept and agree to be bound by these Terms and Conditions. If you do not agree to these terms, please do not use this service."),
+    ("Medical Disclaimer", "fas fa-stethoscope",
+     "HeartCare AI is an educational tool and is NOT intended to replace professional medical advice, diagnosis, or treatment. Always seek the advice of your physician or qualified health provider with questions about a medical condition. Never disregard professional medical advice based on this tool."),
+    ("Data & Privacy", "fas fa-shield-alt",
+     "Your health data is stored securely in our database and is not shared with third parties. We use industry-standard encryption. By using HeartCare, you consent to the collection and use of your data to provide our prediction service."),
+    ("Accuracy Disclaimer", "fas fa-percentage",
+     "Our machine learning model achieves approximately 98.5% accuracy on test data. Predictions may contain errors. HeartCare AI does not guarantee the accuracy of any prediction and is not liable for decisions made based on model output."),
+    ("Account Responsibility", "fas fa-user-lock",
+     "You are responsible for maintaining the confidentiality of your account credentials. You must not share your account or allow unauthorized access. Report any suspected security breach immediately."),
+    ("Service Availability", "fas fa-server",
+     "We strive to maintain high availability but do not guarantee uninterrupted access. We reserve the right to modify, suspend, or discontinue the service at any time without notice."),
+    ("Changes to Terms", "fas fa-edit",
+     "We reserve the right to update these terms at any time. Continued use of the service after changes constitutes acceptance of the updated terms. We will notify users of significant changes.")
+  ] %}
+  {% for title, icon, text in sections %}
+  <div style="background:var(--clr-surface); border:1px solid var(--clr-border); border-radius:var(--radius-md); padding:1.8rem; margin-bottom:1.2rem;" data-reveal>
+    <h3 style="font-size:1.05rem; font-weight:700; display:flex; align-items:center; gap:10px; margin-bottom:0.8rem;">
+      <i class="{{ icon }}" style="color:var(--clr-primary);"></i> {{ title }}
+    </h3>
+    <p style="color:var(--clr-muted); font-size:0.9rem; line-height:1.75;">{{ text }}</p>
+  </div>
+  {% endfor %}
+</div>
+{% endblock %}

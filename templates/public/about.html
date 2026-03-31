@@ -1,0 +1,142 @@
+{% extends "base.html" %}
+{% block title %}About{% endblock %}
+
+{% block extra_css %}
+<style>
+.about-page { max-width: 1100px; margin: 0 auto; padding: 3rem 2rem; }
+.about-hero {
+  text-align: center; padding: 4rem 2rem;
+  background: linear-gradient(135deg, rgba(0,194,203,0.1), rgba(0,151,167,0.04));
+  border: 1px solid rgba(0,194,203,0.15);
+  border-radius: var(--radius-xl); margin-bottom: 3rem;
+  position: relative; overflow: hidden;
+}
+.about-hero::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: radial-gradient(circle at 50% 50%, rgba(0,194,203,0.08) 0%, transparent 60%);
+}
+.about-hero h1 { font-size: clamp(2rem,4vw,3rem); margin-bottom: 1rem; position: relative; }
+.about-hero p { color: var(--clr-muted); max-width: 600px; margin: 0 auto; font-size: 1.02rem; line-height: 1.75; position: relative; }
+.section-divider { border: none; border-top: 1px solid var(--clr-border); margin: 3rem 0; }
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; align-items: start; }
+.info-card {
+  background: var(--clr-surface); border: 1px solid var(--clr-border);
+  border-radius: var(--radius-lg); padding: 2rem;
+}
+.info-card h3 { font-size: 1.1rem; font-weight: 700; margin-bottom: 1rem; display: flex; align-items: center; gap: 10px; }
+.info-card h3 i { color: var(--clr-primary); }
+.info-card p, .info-card li { color: var(--clr-muted); font-size: 0.9rem; line-height: 1.7; }
+.info-card ul { padding-left: 1.2rem; }
+.info-card li { margin-bottom: 0.4rem; }
+.tech-stack { display: flex; flex-wrap: wrap; gap: 0.6rem; margin-top: 1rem; }
+.tech-tag {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: var(--clr-surface-2); border: 1px solid var(--clr-border);
+  border-radius: 6px; padding: 5px 12px; font-size: 0.8rem; color: var(--clr-muted);
+}
+.tech-tag i { color: var(--clr-primary); }
+.section-header { margin-bottom: 2rem; }
+.section-header h2 { font-size: 1.5rem; font-weight: 700; margin-bottom: 0.4rem; }
+.section-header p { color: var(--clr-muted); font-size: 0.9rem; }
+.params-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 0.8rem; }
+.param-item {
+  background: var(--clr-surface); border: 1px solid var(--clr-border);
+  border-radius: var(--radius-md); padding: 0.9rem 1.2rem;
+  display: flex; align-items: center; gap: 10px;
+  font-size: 0.87rem; transition: var(--transition);
+}
+.param-item:hover { border-color: rgba(0,194,203,0.3); }
+.param-item i { color: var(--clr-primary); width: 20px; text-align: center; }
+@media (max-width: 700px) { .two-col { grid-template-columns: 1fr; } }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="about-page">
+  <!-- Hero -->
+  <div class="about-hero animate-fade-up">
+    <h1>About <span class="gradient-text">HeartCare AI</span></h1>
+    <p>An intelligent cardiovascular risk screening system built with machine learning, designed to support early detection and preventive care.</p>
+  </div>
+
+  <!-- Project Info + Model Info -->
+  <div class="two-col" data-reveal>
+    <div class="info-card">
+      <h3><i class="fas fa-project-diagram"></i> Project Overview</h3>
+      <p>HeartCare AI uses a Random Forest classifier trained on the Cleveland Heart Disease dataset to predict cardiovascular risk from 13 clinical parameters. The goal is to provide individuals with actionable, data-driven heart health insights.</p>
+      <br>
+      <p>This project was developed as a full-stack machine learning web application combining Flask backend APIs with a modern, accessible frontend.</p>
+    </div>
+    <div class="info-card">
+      <h3><i class="fas fa-brain"></i> Machine Learning Model</h3>
+      <ul>
+        <li><strong>Algorithm:</strong> Random Forest Classifier</li>
+        <li><strong>Dataset:</strong> Cleveland Heart Disease (UCI ML Repository)</li>
+        <li><strong>Features:</strong> 13 clinical attributes</li>
+        <li><strong>Target:</strong> Binary (heart disease: yes/no)</li>
+        <li><strong>Evaluation:</strong> ~98.5% accuracy on test split</li>
+        <li><strong>Output:</strong> Class prediction + probability score</li>
+      </ul>
+    </div>
+  </div>
+
+  <hr class="section-divider">
+
+  <!-- Input Parameters -->
+  <div data-reveal>
+    <div class="section-header">
+      <h2>Clinical <span class="gradient-text">Parameters</span></h2>
+      <p>The 13 features used by the model for prediction</p>
+    </div>
+    <div class="params-grid">
+      <div class="param-item"><i class="fas fa-birthday-cake"></i> Age</div>
+      <div class="param-item"><i class="fas fa-venus-mars"></i> Biological Sex</div>
+      <div class="param-item"><i class="fas fa-heart"></i> Chest Pain Type</div>
+      <div class="param-item"><i class="fas fa-tachometer-alt"></i> Resting Blood Pressure</div>
+      <div class="param-item"><i class="fas fa-prescription-bottle"></i> Serum Cholesterol</div>
+      <div class="param-item"><i class="fas fa-syringe"></i> Fasting Blood Sugar</div>
+      <div class="param-item"><i class="fas fa-wave-square"></i> Resting ECG</div>
+      <div class="param-item"><i class="fas fa-heartbeat"></i> Max Heart Rate</div>
+      <div class="param-item"><i class="fas fa-running"></i> Exercise Angina</div>
+      <div class="param-item"><i class="fas fa-chart-line"></i> ST Depression</div>
+      <div class="param-item"><i class="fas fa-chart-bar"></i> Slope of Peak ST</div>
+      <div class="param-item"><i class="fas fa-vial"></i> Major Vessels (CA)</div>
+      <div class="param-item"><i class="fas fa-dna"></i> Thalassemia</div>
+    </div>
+  </div>
+
+  <hr class="section-divider">
+
+  <!-- Tech Stack + Disclaimer -->
+  <div class="two-col" data-reveal>
+    <div class="info-card">
+      <h3><i class="fas fa-layer-group"></i> Technology Stack</h3>
+      <div class="tech-stack">
+        <span class="tech-tag"><i class="fab fa-python"></i> Python 3</span>
+        <span class="tech-tag"><i class="fas fa-flask"></i> Flask</span>
+        <span class="tech-tag"><i class="fas fa-database"></i> PostgreSQL</span>
+        <span class="tech-tag"><i class="fas fa-table"></i> SQLAlchemy</span>
+        <span class="tech-tag"><i class="fas fa-lock"></i> Flask-Login</span>
+        <span class="tech-tag"><i class="fas fa-robot"></i> scikit-learn</span>
+        <span class="tech-tag"><i class="fas fa-chart-area"></i> NumPy / Pandas</span>
+        <span class="tech-tag"><i class="fab fa-html5"></i> HTML5 / CSS3</span>
+        <span class="tech-tag"><i class="fab fa-js"></i> Vanilla JS</span>
+      </div>
+    </div>
+    <div class="info-card">
+      <h3><i class="fas fa-exclamation-triangle"></i> Medical Disclaimer</h3>
+      <p>HeartCare AI is intended <strong style="color:var(--clr-text)">for educational and informational purposes only</strong>. It is <em>not</em> a substitute for professional medical advice, diagnosis, or treatment.</p>
+      <br>
+      <p>Always seek the guidance of a qualified cardiologist or healthcare provider with any questions you may have about a medical condition. Never disregard professional medical advice based on this tool's output.</p>
+    </div>
+  </div>
+
+  <hr class="section-divider">
+  <div style="text-align:center;" data-reveal>
+    <a href="{{ url_for('register') }}" class="btn-primary-glow">
+      <i class="fas fa-heartbeat"></i> Try HeartCare Free
+    </a>
+  </div>
+</div>
+{% endblock %}

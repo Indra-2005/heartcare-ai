@@ -1,0 +1,182 @@
+{% extends "base.html" %}
+{% block title %}Login{% endblock %}
+
+{% block extra_css %}
+<style>
+/* Hide the global navbar and footer for standalone auth layout */
+#mainNav, .site-footer { display: none !important; }
+
+/* Advanced Auth Layout */
+.auth-layout {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 1fr;
+}
+@media (min-width: 992px) {
+  .auth-layout { grid-template-columns: 1fr 1.1fr; }
+}
+
+/* Left Form Area */
+.auth-left {
+  padding: 3rem 2rem;
+  display: flex; flex-direction: column; justify-content: center; align-items: center;
+  background: var(--clr-bg);
+}
+.auth-form-wrapper { width: 100%; max-width: 400px; animation: fadeUp 0.6s ease; }
+
+.auth-title { font-size: 2.2rem; font-weight: 800; color: var(--clr-text); margin-bottom: 0.5rem; letter-spacing: -0.5px; }
+.auth-subtitle { color: var(--clr-muted); font-size: 1rem; margin-bottom: 2.5rem; line-height: 1.5; }
+
+.form-control { background: var(--clr-surface); border: 2px solid transparent; border-radius: 12px; padding: 14px 18px; font-weight: 500; transition: 0.3s; }
+.form-control:focus { background: var(--clr-surface-2); border-color: var(--clr-primary); box-shadow: 0 8px 20px rgba(0,151,167,0.1); }
+.form-label { text-transform: none; font-size: 0.9rem; letter-spacing: 0; color: var(--clr-text); margin-bottom: 8px; }
+
+.btn-primary-glow { border-radius: 12px; padding: 15px; font-size: 1.05rem; }
+
+/* Social Logins */
+.social-login { display: flex; gap: 1rem; margin-top: 2rem; }
+.btn-social {
+  flex: 1; padding: 12px; border-radius: 12px; background: var(--clr-surface);
+  border: 1px solid var(--clr-border); color: var(--clr-text); font-weight: 600;
+  display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer;
+  transition: all 0.3s ease; text-decoration: none; font-size: 0.95rem;
+}
+.btn-social:hover { background: var(--clr-surface-2); transform: translateY(-2px); border-color: var(--clr-primary); }
+
+.divider { display: flex; align-items: center; text-align: center; margin: 1.8rem 0; color: var(--clr-muted); font-size: 0.85rem; font-weight: 500; }
+.divider::before, .divider::after { content: ''; flex: 1; border-bottom: 1px solid var(--clr-border); }
+.divider:not(:empty)::before { margin-right: 1em; }
+.divider:not(:empty)::after { margin-left: 1em; }
+
+/* Right Visual Area */
+.auth-right {
+  display: none;
+  background: linear-gradient(135deg, #0f172a, #0c4a6e);
+  position: relative; overflow: hidden;
+  padding: 4rem; text-align: left;
+}
+@media (min-width: 992px) { .auth-right { display: flex; flex-direction: column; justify-content: center; } }
+.auth-right::before {
+  content: ''; position: absolute; inset: -50%;
+  background: radial-gradient(circle, rgba(0,194,203,0.1) 0%, transparent 60%);
+  animation: spin 30s linear infinite; pointer-events: none;
+}
+.glass-testimonial {
+  position: relative; z-index: 1;
+  background: rgba(255,255,255,0.05); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255,255,255,0.1); border-radius: 24px;
+  padding: 3rem; max-width: 500px; margin: 0 auto;
+}
+.quote-icon { font-size: 3rem; color: var(--clr-primary); margin-bottom: 1rem; opacity: 0.5; }
+.testimonial-text { font-size: 1.35rem; color: #e2e8f0; font-weight: 300; line-height: 1.6; margin-bottom: 2rem; }
+.testimonial-author { display: flex; align-items: center; gap: 15px; }
+.author-avatar { width: 50px; height: 50px; border-radius: 50%; background: var(--clr-primary); display: flex; align-items: center; justify-content: center; font-size: 1.2rem; color: white; font-weight: bold; }
+.author-info h4 { color: white; margin: 0; font-size: 1rem; }
+.author-info p { color: #94a3b8; margin: 0; font-size: 0.85rem; }
+
+.pw-wrapper { position: relative; }
+.pw-wrapper .form-control { padding-right: 48px; }
+.toggle-password { position: absolute; right: 14px; top: 50%; transform: translateY(-50%); background: none; border: none; color: var(--clr-muted); cursor: pointer; transition: 0.2s;}
+.toggle-password:hover { color: var(--clr-primary); }
+.remember-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 2rem; font-size: 0.9rem; }
+.remember-wrapper { display: flex; align-items: center; gap: 8px; color: var(--clr-muted); cursor: pointer; }
+.forgot-pass { color: var(--clr-primary); text-decoration: none; font-weight: 500; transition: 0.2s; }
+.forgot-pass:hover { color: var(--clr-accent); }
+.auth-footer-text { margin-top: 2.5rem; text-align: center; color: var(--clr-muted); font-size: 0.95rem; }
+.auth-footer-text a { color: var(--clr-primary); font-weight: 600; text-decoration: none; }
+
+/* Shimmer Animation for Author */
+.shimmer-text {
+  font-weight: 700;
+  display: inline-block;
+  background: linear-gradient(
+    90deg, 
+    #e2e8f0 0%, 
+    #ffffff 25%, 
+    #00c2cb 50%, 
+    #ffffff 75%, 
+    #e2e8f0 100%
+  );
+  background-size: 200% auto;
+  color: transparent;
+  -webkit-background-clip: text;
+  background-clip: text;
+  animation: shine 3s linear infinite;
+}
+@keyframes shine {
+  to { background-position: 200% center; }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="auth-layout">
+  <!-- Left Side: Form -->
+  <div class="auth-left">
+    <div class="auth-form-wrapper">
+      <h1 class="auth-title">Welcome back</h1>
+      <p class="auth-subtitle">Sign in to your HeartCare dashboard to access predictive insights.</p>
+
+      <form method="POST" novalidate>
+        {{ form.hidden_tag() }}
+
+        <div class="form-group">
+          <label class="form-label">Username</label>
+          {{ form.username(class="form-control" + (" is-invalid" if form.username.errors else ""), placeholder="Enter your username", id="username") }}
+          {% for error in form.username.errors %}<div class="invalid-feedback">{{ error }}</div>{% endfor %}
+        </div>
+
+        <div class="form-group" style="margin-bottom: 1rem;">
+          <label class="form-label">Password</label>
+          <div class="pw-wrapper">
+            {{ form.password(class="form-control" + (" is-invalid" if form.password.errors else ""), placeholder="••••••••", id="password") }}
+            <button type="button" class="toggle-password"><i class="fas fa-eye"></i></button>
+          </div>
+          {% for error in form.password.errors %}<div class="invalid-feedback">{{ error }}</div>{% endfor %}
+        </div>
+
+        <div class="remember-row">
+          <label class="remember-wrapper" for="remember">
+            {{ form.remember(id="remember") }} Remember me
+          </label>
+          <a href="#" class="forgot-pass" onclick="alert('Email integration coming soon!'); return false;">Forgot password?</a>
+        </div>
+
+        <button type="submit" class="btn-primary-glow w-100" style="justify-content:center;">
+          Sign In
+        </button>
+      </form>
+
+      <div class="divider"><span>OR CONTINUE WITH</span></div>
+
+      <div class="social-login">
+        <a href="#" class="btn-social" onclick="alert('Google Auth coming soon!'); return false;">
+          <i class="fab fa-google" style="color: #EA4335;"></i> Google
+        </a>
+        <a href="#" class="btn-social" onclick="alert('GitHub Auth coming soon!'); return false;">
+          <i class="fab fa-github" style="color: #333;"></i> GitHub
+        </a>
+      </div>
+
+      <div class="auth-footer-text">
+        New to HeartCare? <a href="{{ url_for('register') }}">Create an account</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Right Side: Graphic/Testimonial -->
+  <div class="auth-right">
+    <div class="glass-testimonial">
+      <i class="fas fa-quote-left quote-icon"></i>
+      <p class="testimonial-text">
+        "A good heart is better than all the heads in the world. Taking care of your cardiovascular health is the ultimate investment."
+      </p>
+      <div class="testimonial-author">
+        <div class="author-info">
+          <h4>– <span class="shimmer-text">HeartCare Insights</span></h4>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

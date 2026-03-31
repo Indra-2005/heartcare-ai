@@ -1,0 +1,188 @@
+{% extends "base.html" %}
+{% block title %}My Profile{% endblock %}
+
+{% block extra_css %}
+<style>
+.profile-page { max-width: 1100px; margin: 0 auto; padding: 3rem 2rem; }
+.profile-header { display: flex; gap: 2rem; align-items: flex-start; margin-bottom: 2.5rem; flex-wrap: wrap; }
+.avatar {
+  width: 80px; height: 80px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--clr-primary), var(--clr-primary-d));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 2rem; color: #fff; font-weight: 800; flex-shrink: 0;
+  box-shadow: 0 0 0 4px rgba(0,194,203,0.2);
+}
+.profile-info h1 { font-size: 1.7rem; margin-bottom: 0.2rem; }
+.profile-info p { color: var(--clr-muted); font-size: 0.9rem; }
+.profile-chips { display: flex; gap: 0.6rem; margin-top: 0.8rem; flex-wrap: wrap; }
+.chip {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: var(--clr-surface); border: 1px solid var(--clr-border);
+  border-radius: 50px; padding: 4px 14px; font-size: 0.8rem; color: var(--clr-muted);
+}
+.chip i { color: var(--clr-primary); font-size: 0.8rem; }
+.header-actions { margin-left: auto; display: flex; gap: 0.8rem; flex-wrap: wrap; }
+
+/* Stats row */
+.stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.2rem; margin-bottom: 2.5rem; }
+.stat-card {
+  background: var(--clr-surface); border: 1px solid var(--clr-border);
+  border-radius: var(--radius-md); padding: 1.5rem; text-align: center;
+  transition: var(--transition);
+}
+.stat-card:hover { border-color: rgba(0,194,203,0.3); transform: translateY(-3px); }
+.stat-big { font-size: 2rem; font-weight: 800; display: block; }
+.stat-sub { font-size: 0.8rem; color: var(--clr-muted); margin-top: 4px; }
+
+/* History table */
+.history-card {
+  background: var(--clr-surface); border: 1px solid var(--clr-border);
+  border-radius: var(--radius-lg); overflow: hidden;
+}
+.history-card-header {
+  padding: 1.5rem 2rem; border-bottom: 1px solid var(--clr-border);
+  display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;
+}
+.history-card-header h2 { font-size: 1.1rem; font-weight: 700; }
+.table-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+thead th {
+  padding: 0.9rem 1.2rem; text-align: left;
+  font-size: 0.75rem; font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase;
+  color: var(--clr-muted); border-bottom: 1px solid var(--clr-border);
+  background: var(--clr-surface-2);
+}
+tbody tr { border-bottom: 1px solid var(--clr-border); transition: var(--transition); }
+tbody tr:hover { background: var(--clr-surface-2); }
+tbody td { padding: 0.9rem 1.2rem; color: var(--clr-text); vertical-align: middle; }
+.delete-btn {
+  background: rgba(252,129,129,0.1); border: 1px solid rgba(252,129,129,0.25);
+  color: #fca5a5; border-radius: 6px; padding: 5px 12px;
+  font-size: 0.78rem; cursor: pointer; transition: var(--transition);
+}
+.delete-btn:hover { background: rgba(252,129,129,0.2); }
+.empty-state {
+  text-align: center; padding: 4rem 2rem;
+  color: var(--clr-muted);
+}
+.empty-state i { font-size: 3rem; margin-bottom: 1rem; opacity: 0.3; }
+
+@media (max-width: 900px) {
+  .stats-row { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 500px) {
+  .stats-row { grid-template-columns: 1fr; }
+  .profile-header { flex-direction: column; align-items: center; text-align: center; }
+  .header-actions { margin-left: 0; justify-content: center; }
+  .profile-chips { justify-content: center; }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="profile-page">
+  <!-- Profile Header -->
+  <div class="profile-header animate-fade-up">
+    <div class="avatar">{{ current_user.fullname[0].upper() }}</div>
+    <div class="profile-info">
+      <h1>{{ current_user.fullname }}</h1>
+      <p>Member since {{ current_user.created_at.strftime('%B %Y') if current_user.created_at else 'N/A' }}</p>
+      <div class="profile-chips">
+        <span class="chip"><i class="fas fa-user"></i> {{ current_user.username }}</span>
+        <span class="chip"><i class="fas fa-envelope"></i> {{ current_user.email }}</span>
+        <span class="chip"><i class="fas fa-phone"></i> {{ current_user.mobile_number }}</span>
+      </div>
+    </div>
+    <div class="header-actions">
+      <a href="{{ url_for('change_password') }}" class="btn-ghost" style="font-size:0.88rem; padding:10px 22px;">
+        <i class="fas fa-key"></i> Change Password
+      </a>
+      <a href="{{ url_for('main') }}" class="btn-primary-glow" style="padding:10px 22px; font-size:0.88rem;">
+        <i class="fas fa-plus"></i> New Prediction
+      </a>
+    </div>
+  </div>
+
+  <!-- Stats -->
+  <div class="stats-row" data-reveal>
+    <div class="stat-card">
+      <span class="stat-big gradient-text" data-counter data-target="{{ total }}">{{ total }}</span>
+      <div class="stat-sub">Total Predictions</div>
+    </div>
+    <div class="stat-card">
+      <span class="stat-big" style="color:#fca5a5;" data-counter data-target="{{ high_risk }}">{{ high_risk }}</span>
+      <div class="stat-sub">High Risk</div>
+    </div>
+    <div class="stat-card">
+      <span class="stat-big" style="color:#fbd38d;" data-counter data-target="{{ moderate_risk }}">{{ moderate_risk }}</span>
+      <div class="stat-sub">Moderate Risk</div>
+    </div>
+    <div class="stat-card">
+      <span class="stat-big" style="color:#9ae6b4;" data-counter data-target="{{ low_risk }}">{{ low_risk }}</span>
+      <div class="stat-sub">Low Risk</div>
+    </div>
+  </div>
+
+  <!-- History Table -->
+  <div class="history-card" data-reveal>
+    <div class="history-card-header">
+      <h2><i class="fas fa-history" style="color:var(--clr-primary); margin-right:8px;"></i> Prediction History</h2>
+      {% if history %}
+        <span style="color:var(--clr-muted); font-size:0.85rem;">{{ total }} records</span>
+      {% endif %}
+    </div>
+    {% if history %}
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Result</th>
+            <th>Risk</th>
+            <th>Probability</th>
+            <th>Age</th>
+            <th>BP</th>
+            <th>Cholesterol</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for h in history %}
+          <tr>
+            <td>{{ h.created_at.strftime('%b %d, %Y') }}</td>
+            <td>{{ h.prediction_result }}</td>
+            <td>
+              <span class="risk-badge badge-{{ h.risk_level }}">
+                {% if h.risk_level == 'high' %}<i class="fas fa-exclamation-triangle"></i>
+                {% elif h.risk_level == 'moderate' %}<i class="fas fa-exclamation-circle"></i>
+                {% else %}<i class="fas fa-check-circle"></i>{% endif %}
+                {{ h.risk_level | capitalize }}
+              </span>
+            </td>
+            <td>{{ "%.0f"|format(h.probability) }}%</td>
+            <td>{{ h.age }}</td>
+            <td>{{ h.trestbps }} mmHg</td>
+            <td>{{ h.chol }} mg/dl</td>
+            <td>
+              <form method="POST" action="{{ url_for('delete_history', entry_id=h.id) }}"
+                    onsubmit="return confirm('Delete this record?')">
+                <button type="submit" class="delete-btn"><i class="fas fa-trash"></i></button>
+              </form>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <div class="empty-state">
+      <i class="fas fa-heartbeat"></i>
+      <p>No predictions yet.</p>
+      <a href="{{ url_for('main') }}" class="btn-primary-glow" style="margin-top:1rem; font-size:0.9rem;">
+        <i class="fas fa-plus"></i> Run Your First Assessment
+      </a>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

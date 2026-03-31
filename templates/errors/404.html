@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block title %}Page Not Found{% endblock %}
+{% block content %}
+<div style="min-height:60vh; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:3rem 2rem;">
+  <div style="font-size:7rem; font-weight:900; line-height:1; background:linear-gradient(135deg,var(--clr-primary),var(--clr-accent)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;">404</div>
+  <h1 style="font-size:1.8rem; margin:1rem 0 0.5rem;">Page Not Found</h1>
+  <p style="color:var(--clr-muted); max-width:420px;">The page you're looking for doesn't exist or was moved. Let's get you back on track.</p>
+  <div style="display:flex; gap:1rem; margin-top:2rem; flex-wrap:wrap; justify-content:center;">
+    <a href="{{ url_for('index') }}" class="btn-primary-glow"><i class="fas fa-home"></i> Go Home</a>
+    <a href="javascript:history.back()" class="btn-ghost"><i class="fas fa-arrow-left"></i> Go Back</a>
+  </div>
+</div>
+{% endblock %}

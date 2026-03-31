@@ -1,0 +1,209 @@
+{% extends "base.html" %}
+{% block title %}Your Result{% endblock %}
+
+{% block extra_css %}
+<style>
+.result-page { max-width: 860px; margin: 0 auto; padding: 3rem 2rem; }
+.result-header { text-align: center; margin-bottom: 2.5rem; }
+.result-badge {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 8px 22px; border-radius: 50px; font-weight: 700; font-size: 0.95rem;
+  margin-bottom: 1.2rem;
+}
+.badge-positive { background: rgba(252,129,129,0.15); color: #fca5a5; border: 1px solid rgba(252,129,129,0.3); }
+.badge-negative { background: rgba(72,187,120,0.15); color: #9ae6b4; border: 1px solid rgba(72,187,120,0.3); }
+
+/* Risk Gauge */
+.gauge-wrap {
+  display: flex; flex-direction: column; align-items: center; margin: 2rem 0;
+}
+.gauge-svg { width: 220px; height: 120px; }
+.gauge-value { font-size: 2rem; font-weight: 800; margin-top: 0.3rem; }
+
+/* Main card */
+.result-card {
+  background: var(--clr-surface);
+  border: 1px solid var(--clr-border);
+  border-radius: var(--radius-lg);
+  overflow: hidden; margin-bottom: 1.5rem;
+}
+.result-card-header {
+  padding: 1.5rem 2rem;
+  border-bottom: 1px solid var(--clr-border);
+  display: flex; align-items: center; gap: 12px;
+}
+.result-card-header .icon-wrap {
+  width: 44px; height: 44px; border-radius: 12px;
+  display: flex; align-items: center; justify-content: center; font-size: 1.2rem;
+}
+.risk-high   .icon-wrap { background: rgba(252,129,129,0.15); color: #fca5a5; }
+.risk-moderate .icon-wrap { background: rgba(237,137,54,0.15); color: #fbd38d; }
+.risk-low    .icon-wrap { background: rgba(72,187,120,0.15); color: #9ae6b4; }
+.result-card-body { padding: 2rem; }
+.rec-list { list-style: none; display: flex; flex-direction: column; gap: 0.8rem; }
+.rec-item {
+  display: flex; align-items: flex-start; gap: 14px;
+  background: var(--clr-surface-2);
+  border: 1px solid var(--clr-border);
+  border-radius: var(--radius-md); padding: 1rem 1.2rem;
+  transition: var(--transition);
+}
+.rec-item:hover { border-color: rgba(0,194,203,0.3); transform: translateX(4px); }
+.rec-icon { font-size: 1.1rem; flex-shrink: 0; margin-top: 2px; }
+.risk-high   .rec-icon { color: #fca5a5; }
+.risk-moderate .rec-icon { color: #fbd38d; }
+.risk-low    .rec-icon { color: #9ae6b4; }
+
+/* Metrics Grid */
+.metrics-grid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+.metric-card {
+  background: var(--clr-surface);
+  border: 1px solid var(--clr-border);
+  border-radius: var(--radius-md); padding: 1.2rem; text-align: center;
+}
+.metric-val { font-size: 1.4rem; font-weight: 800; display: block; }
+.metric-label { font-size: 0.75rem; color: var(--clr-muted); margin-top: 4px; }
+
+/* Action buttons */
+.action-row { display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center; margin-top: 2rem; }
+
+/* Print styles */
+@media print {
+  .navbar, .action-row, footer { display: none !important; }
+  body { background: #fff; color: #111; }
+  .result-card, .metrics-grid { border: 1px solid #eee; }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="result-page">
+  <div class="result-header animate-fade-up">
+    {% if risk_level == 'high' or risk_level == 'moderate' %}
+      <div class="result-badge badge-positive"><i class="fas fa-exclamation-triangle"></i> {{ prediction }}</div>
+    {% else %}
+      <div class="result-badge badge-negative"><i class="fas fa-check-circle"></i> {{ prediction }}</div>
+    {% endif %}
+
+    <!-- Animated SVG Gauge -->
+    <div class="gauge-wrap">
+      <svg class="gauge-svg" viewBox="0 0 220 120">
+        <path d="M20 110 A90 90 0 0 1 200 110" fill="none" stroke="rgba(0,0,0,0.06)" stroke-width="18" stroke-linecap="round"/>
+        <path d="M20 110 A90 90 0 0 1 200 110" fill="none"
+          stroke="url(#gaugeGrad)"
+          stroke-width="18" stroke-linecap="round"
+          stroke-dasharray="283"
+          stroke-dashoffset="{{ 283 - (probability_value / 100 * 283) | int }}"
+          style="transition: stroke-dashoffset 1.5s ease;"/>
+        <defs>
+          <linearGradient id="gaugeGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stop-color="#10b981"/>
+            <stop offset="50%" stop-color="#f59e0b"/>
+            <stop offset="100%" stop-color="#ef4444"/>
+          </linearGradient>
+        </defs>
+        <text x="110" y="95" text-anchor="middle" font-size="22" font-weight="800" fill="var(--clr-text)">{{ probability }}</text>
+        <text x="110" y="112" text-anchor="middle" font-size="10" fill="var(--clr-muted)">Risk Score</text>
+      </svg>
+    </div>
+  </div>
+
+  <!-- Metrics -->
+  {% if entry %}
+  <div class="metrics-grid" data-reveal>
+    <div class="metric-card">
+      <span class="metric-val">{{ entry.age }}</span>
+      <div class="metric-label">Age</div>
+    </div>
+    <div class="metric-card">
+      <span class="metric-val">{{ entry.trestbps }}</span>
+      <div class="metric-label">BP mmHg</div>
+    </div>
+    <div class="metric-card">
+      <span class="metric-val">{{ entry.chol }}</span>
+      <div class="metric-label">Cholesterol</div>
+    </div>
+    <div class="metric-card">
+      <span class="metric-val">{{ entry.thalach }}</span>
+      <div class="metric-label">Max HR</div>
+    </div>
+    <div class="metric-card">
+      <span class="metric-val">{{ entry.oldpeak }}</span>
+      <div class="metric-label">ST Dep.</div>
+    </div>
+    <div class="metric-card">
+      <span class="metric-val">{{ entry.ca }}</span>
+      <div class="metric-label">Vessels</div>
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- Recommendations Card -->
+  <div class="result-card risk-{{ risk_level }}" data-reveal>
+    <div class="result-card-header">
+      <div class="icon-wrap">
+        {% if risk_level == 'high' %}<i class="fas fa-exclamation-triangle"></i>
+        {% elif risk_level == 'moderate' %}<i class="fas fa-exclamation-circle"></i>
+        {% else %}<i class="fas fa-check-circle"></i>{% endif %}
+      </div>
+      <div>
+        <h2 style="font-size:1.15rem; margin-bottom:2px;">
+          {% if risk_level == 'high' %}High Risk – Immediate Action Required
+          {% elif risk_level == 'moderate' %}Moderate Risk – Proactive Management Needed
+          {% else %}Low Risk – Maintain Healthy Habits{% endif %}
+        </h2>
+        <span style="font-size:0.82rem; color:var(--clr-muted);">Personalized recommendations below</span>
+      </div>
+    </div>
+    <div class="result-card-body">
+      <ul class="rec-list">
+        {% if probability_value >= 75 %}
+          <li class="rec-item"><span class="rec-icon"><i class="fas fa-phone-alt"></i></span><div><strong>Urgent cardiologist consultation</strong> — Schedule within 48 hours for comprehensive cardiac evaluation.</div></li>
+          <li class="rec-item"><span class="rec-icon"><i class="fas fa-heartbeat"></i></span><div><strong>Daily blood pressure monitoring</strong> — Track readings morning and evening.</div></li>
+          <li class="rec-item"><span class="rec-icon"><i class="fas fa-utensils"></i></span><div><strong>Strict low-sodium diet</strong> — Target &lt;1500 mg/day; eliminate processed foods.</div></li>
+          <li class="rec-item"><span class="rec-icon"><i class="fas fa-smoking-ban"></i></span><div><strong>Immediate smoking cessation</strong> — Enroll in a cessation program right away.</div></li>
+          <li class="rec-item"><span class="rec-icon"><i class="fas fa-pills"></i></span><div><strong>Medication review</strong> — Discuss statin and antiplatelet therapy with your doctor.</div></li>
+        {% elif probability_value >= 50 %}
+          <li class="rec-item"><span class="rec-icon"><i class="fas fa-clipboard-list"></i></span><div><strong>Weekly BP &amp; glucose checks</strong> — Monitor trends and flag anomalies early.</div></li>
+          <li class="rec-item"><span class="rec-icon"><i class="fas fa-seedling"></i></span><div><strong>Mediterranean diet</strong> — Emphasize olive oil, fish, vegetables, and whole grains.</div></li>
+          <li class="rec-item"><span class="rec-icon"><i class="fas fa-walking"></i></span><div><strong>30-min daily aerobic exercise</strong> — Brisk walking, cycling, or swimming.</div></li>
+          <li class="rec-item"><span class="rec-icon"><i class="fas fa-spa"></i></span><div><strong>Stress management</strong> — Practice meditation, yoga, or breathing exercises daily.</div></li>
+          <li class="rec-item"><span class="rec-icon"><i class="fas fa-user-md"></i></span><div><strong>Bi-annual cardiac screening</strong> — Schedule follow-up with your physician.</div></li>
+        {% else %}
+          <li class="rec-item"><span class="rec-icon"><i class="fas fa-calendar-check"></i></span><div><strong>Annual cardiac checkups</strong> — Stay consistent with routine screening.</div></li>
+          <li class="rec-item"><span class="rec-icon"><i class="fas fa-apple-alt"></i></span><div><strong>DASH diet principles</strong> — Rich in fruits, vegetables, and low-fat dairy.</div></li>
+          <li class="rec-item"><span class="rec-icon"><i class="fas fa-bicycle"></i></span><div><strong>150 min/week of exercise</strong> — Mix aerobic and strength training activities.</div></li>
+          <li class="rec-item"><span class="rec-icon"><i class="fas fa-weight"></i></span><div><strong>Maintain healthy BMI</strong> — Target range 18.5–24.9 for optimal heart health.</div></li>
+          <li class="rec-item"><span class="rec-icon"><i class="fas fa-moon"></i></span><div><strong>7–9 hours of sleep</strong> — Quality sleep is crucial for cardiovascular recovery.</div></li>
+        {% endif %}
+      </ul>
+    </div>
+  </div>
+
+  <!-- Action buttons -->
+  <div class="action-row" data-reveal>
+    <button onclick="printReport()" class="btn-primary-glow">
+      <i class="fas fa-download"></i> Download / Print Report
+    </button>
+    <a href="{{ url_for('main') }}" class="btn-ghost">
+      <i class="fas fa-redo"></i> New Assessment
+    </a>
+    <a href="{{ url_for('profile') }}" class="btn-ghost">
+      <i class="fas fa-history"></i> View History
+    </a>
+  </div>
+
+  <div style="text-align:center; margin-top:1.5rem; font-size:0.8rem; color:var(--clr-muted);">
+    <i class="fas fa-info-circle"></i> This result is for educational purposes only. Consult a licensed cardiologist for clinical decisions.
+  </div>
+</div>
+
+<script>
+function printReport() {
+    window.print();
+}
+</script>
+{% endblock %}

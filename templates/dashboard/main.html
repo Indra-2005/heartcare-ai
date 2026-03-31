@@ -1,0 +1,353 @@
+{% extends "base.html" %}
+{% block title %}Predict{% endblock %}
+
+{% block extra_css %}
+<style>
+.predict-page {
+  max-width: 900px; margin: 0 auto; padding: 3rem 2rem;
+}
+.page-header { margin-bottom: 2.5rem; }
+.page-header h1 { font-size: 2rem; margin-bottom: 0.4rem; }
+.page-header p { color: var(--clr-muted); font-size: 0.95rem; }
+
+/* Progress Bar */
+.progress-track {
+  display: flex; gap: 0; margin-bottom: 2.5rem;
+  position: relative;
+}
+.progress-track::before {
+  content: '';
+  position: absolute;
+  top: 20px; left: 0; right: 0;
+  height: 2px; background: var(--clr-border); z-index: 0;
+}
+.step-tab {
+  flex: 1; text-align: center; cursor: pointer;
+  position: relative; z-index: 1;
+}
+.step-circle {
+  width: 40px; height: 40px;
+  border-radius: 50%;
+  background: var(--clr-surface-2);
+  border: 2px solid var(--clr-border);
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 8px;
+  font-weight: 700; font-size: 0.9rem;
+  transition: var(--transition);
+  color: var(--clr-muted);
+}
+.step-tab.active .step-circle, .step-tab.done .step-circle {
+  background: var(--clr-primary);
+  border-color: var(--clr-primary);
+  color: #fff;
+  box-shadow: 0 0 0 4px rgba(0,194,203,0.2);
+}
+.step-tab.done .step-circle { background: #48bb78; border-color: #48bb78; }
+.step-label { font-size: 0.75rem; color: var(--clr-muted); font-weight: 500; }
+.step-tab.active .step-label { color: var(--clr-primary); }
+
+/* Form card */
+.form-panel {
+  background: var(--clr-surface);
+  border: 1px solid var(--clr-border);
+  border-radius: var(--radius-lg);
+  padding: 2.5rem; margin-bottom: 1.5rem;
+  display: none;
+}
+.form-panel.active { display: block; animation: fadeUp 0.4s ease; }
+.panel-title {
+  font-size: 1.2rem; font-weight: 700; margin-bottom: 0.4rem;
+}
+.panel-desc { color: var(--clr-muted); font-size: 0.88rem; margin-bottom: 2rem; }
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem; }
+.form-grid .full { grid-column: 1 / -1; }
+
+.field-tip-text {
+  font-size: 0.77rem; color: var(--clr-muted);
+  margin-top: 4px; display: flex; align-items: center; gap: 5px;
+}
+.field-tip-text i { color: var(--clr-info); font-size: 0.75rem; }
+
+/* Nav buttons */
+.form-nav {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid var(--clr-border);
+}
+.step-counter { color: var(--clr-muted); font-size: 0.85rem; }
+
+/* Submit button */
+#submitBtn { display: none; }
+
+/* Disclaimer */
+.disclaimer {
+  background: rgba(99,179,237,0.08);
+  border: 1px solid rgba(99,179,237,0.2);
+  border-radius: var(--radius-md);
+  padding: 1rem 1.2rem;
+  display: flex; gap: 12px; align-items: flex-start;
+  font-size: 0.83rem; color: var(--clr-muted);
+  margin-top: 1rem;
+}
+.disclaimer i { color: var(--clr-info); flex-shrink: 0; margin-top: 2px; }
+
+@media (max-width: 600px) { .form-grid { grid-template-columns: 1fr; } .form-grid .full { grid-column: 1; } }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="predict-page">
+  <div class="page-header">
+    <h1><span class="gradient-text">Heart Risk</span> Assessment</h1>
+    <p>Enter your clinical parameters below. All values are analyzed by our AI model.</p>
+  </div>
+
+  <!-- Progress Tabs -->
+  <div class="progress-track">
+    <div class="step-tab active" id="tab1" onclick="goToStep(1)">
+      <div class="step-circle">1</div>
+      <div class="step-label">Demographics</div>
+    </div>
+    <div class="step-tab" id="tab2" onclick="goToStep(2)">
+      <div class="step-circle">2</div>
+      <div class="step-label">Vitals</div>
+    </div>
+    <div class="step-tab" id="tab3" onclick="goToStep(3)">
+      <div class="step-circle">3</div>
+      <div class="step-label">Cardiac Data</div>
+    </div>
+    <div class="step-tab" id="tab4" onclick="goToStep(4)">
+      <div class="step-circle">4</div>
+      <div class="step-label">Review</div>
+    </div>
+  </div>
+
+  <form id="predictForm" action="{{ url_for('predict') }}" method="POST" novalidate>
+
+    <!-- Step 1: Demographics -->
+    <div class="form-panel active" id="panel1">
+      <h2 class="panel-title"><i class="fas fa-user-circle" style="color:var(--clr-primary)"></i> Demographics</h2>
+      <p class="panel-desc">Basic personal information needed for risk calculation.</p>
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="form-label"><i class="fas fa-birthday-cake"></i> Age</label>
+          <input type="number" name="age" class="form-control" placeholder="e.g. 52" min="18" max="110" required>
+          <div class="field-tip-text"><i class="fas fa-info-circle"></i> Valid range: 18–110 years</div>
+        </div>
+        <div class="form-group">
+          <label class="form-label"><i class="fas fa-venus-mars"></i> Biological Sex</label>
+          <select name="sex" class="form-control" required>
+            <option value="" disabled selected>Select sex</option>
+            <option value="1">Male</option>
+            <option value="0">Female</option>
+          </select>
+        </div>
+        <div class="form-group full">
+          <label class="form-label"><i class="fas fa-heart"></i> Chest Pain Type</label>
+          <select name="cp" class="form-control" required>
+            <option value="" disabled selected>Select chest pain type</option>
+            <option value="0">Typical Angina – Classic effort-related chest pain</option>
+            <option value="1">Atypical Angina – Non-classic presentations</option>
+            <option value="2">Non-anginal Pain – Not cardiac in origin</option>
+            <option value="3">Asymptomatic – No chest pain</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-nav">
+        <span class="step-counter">Step 1 of 4</span>
+        <button type="button" class="btn-primary-glow" onclick="nextStep(1)">
+          Next <i class="fas fa-arrow-right"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Step 2: Vitals -->
+    <div class="form-panel" id="panel2">
+      <h2 class="panel-title"><i class="fas fa-tachometer-alt" style="color:var(--clr-primary)"></i> Vital Signs</h2>
+      <p class="panel-desc">Blood pressure, cholesterol, and sugar levels.</p>
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="form-label"><i class="fas fa-tachometer-alt"></i> Resting Blood Pressure</label>
+          <input type="number" name="trestbps" class="form-control" placeholder="mmHg (94–200)" min="80" max="220" required>
+          <div class="field-tip-text"><i class="fas fa-info-circle"></i> Normal: 90–120 mmHg</div>
+        </div>
+        <div class="form-group">
+          <label class="form-label"><i class="fas fa-prescription-bottle"></i> Serum Cholesterol</label>
+          <input type="number" name="chol" class="form-control" placeholder="mg/dl (126–564)" min="100" max="600" required>
+          <div class="field-tip-text"><i class="fas fa-info-circle"></i> Normal: &lt;200 mg/dl</div>
+        </div>
+        <div class="form-group full">
+          <label class="form-label"><i class="fas fa-syringe"></i> Fasting Blood Sugar</label>
+          <select name="fbs" class="form-control" required>
+            <option value="" disabled selected>Select blood sugar level</option>
+            <option value="1">&gt; 120 mg/dl (Elevated – possible diabetes)</option>
+            <option value="0">&le; 120 mg/dl (Normal)</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-nav">
+        <button type="button" class="btn-ghost" onclick="prevStep(2)"><i class="fas fa-arrow-left"></i> Back</button>
+        <span class="step-counter">Step 2 of 4</span>
+        <button type="button" class="btn-primary-glow" onclick="nextStep(2)">Next <i class="fas fa-arrow-right"></i></button>
+      </div>
+    </div>
+
+    <!-- Step 3: Cardiac Data -->
+    <div class="form-panel" id="panel3">
+      <h2 class="panel-title"><i class="fas fa-heartbeat" style="color:var(--clr-primary)"></i> Cardiac Parameters</h2>
+      <p class="panel-desc">ECG, heart rate, and other cardiac measurements.</p>
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="form-label"><i class="fas fa-wave-square"></i> Resting ECG</label>
+          <select name="restecg" class="form-control" required>
+            <option value="" disabled selected>Select ECG result</option>
+            <option value="0">Normal</option>
+            <option value="1">ST-T Wave Abnormality</option>
+            <option value="2">Left Ventricular Hypertrophy</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label"><i class="fas fa-heartbeat"></i> Max Heart Rate</label>
+          <input type="number" name="thalach" class="form-control" placeholder="bpm (71–202)" min="60" max="220" required>
+          <div class="field-tip-text"><i class="fas fa-info-circle"></i> Max theoretical: 220 – age</div>
+        </div>
+        <div class="form-group">
+          <label class="form-label"><i class="fas fa-running"></i> Exercise-Induced Angina</label>
+          <select name="exang" class="form-control" required>
+            <option value="" disabled selected>Does exercise cause pain?</option>
+            <option value="1">Yes</option>
+            <option value="0">No</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label"><i class="fas fa-chart-line"></i> ST Depression (Oldpeak)</label>
+          <input type="number" name="oldpeak" class="form-control" placeholder="0.0 – 6.2" step="0.1" min="0" max="10" required>
+          <div class="field-tip-text"><i class="fas fa-info-circle"></i> Relative to rest</div>
+        </div>
+        <div class="form-group">
+          <label class="form-label"><i class="fas fa-chart-bar"></i> Slope of Peak ST</label>
+          <select name="slope" class="form-control" required>
+            <option value="" disabled selected>Select ST slope</option>
+            <option value="0">Upsloping (favourable)</option>
+            <option value="1">Flat</option>
+            <option value="2">Downsloping (adverse)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label"><i class="fas fa-vial"></i> Major Vessels (CA)</label>
+          <input type="number" name="ca" class="form-control" placeholder="0–4 vessels" min="0" max="4" required>
+          <div class="field-tip-text"><i class="fas fa-info-circle"></i> Fluoroscopy-colored</div>
+        </div>
+        <div class="form-group full">
+          <label class="form-label"><i class="fas fa-dna"></i> Thalassemia</label>
+          <select name="thal" class="form-control" required>
+            <option value="" disabled selected>Select thalassemia type</option>
+            <option value="0">Normal</option>
+            <option value="1">Fixed Defect</option>
+            <option value="2">Reversible Defect</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-nav">
+        <button type="button" class="btn-ghost" onclick="prevStep(3)"><i class="fas fa-arrow-left"></i> Back</button>
+        <span class="step-counter">Step 3 of 4</span>
+        <button type="button" class="btn-primary-glow" onclick="nextStep(3)">Review <i class="fas fa-arrow-right"></i></button>
+      </div>
+    </div>
+
+    <!-- Step 4: Review & Submit -->
+    <div class="form-panel" id="panel4">
+      <h2 class="panel-title"><i class="fas fa-clipboard-check" style="color:var(--clr-primary)"></i> Review &amp; Submit</h2>
+      <p class="panel-desc">Check your inputs before running the AI analysis.</p>
+      <div id="reviewSummary" style="
+        background: var(--clr-surface-2);
+        border: 1px solid var(--clr-border);
+        border-radius: var(--radius-md); padding: 1.5rem;
+        display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem;
+        margin-bottom: 1.5rem;
+        font-size:0.88rem; color: var(--clr-muted);
+      "></div>
+      <div class="disclaimer">
+        <i class="fas fa-info-circle"></i>
+        <span>This tool is for <strong style="color:var(--clr-text)">educational purposes only</strong> and does not constitute medical advice. Always consult a qualified cardiologist for clinical decisions.</span>
+      </div>
+      <div class="form-nav">
+        <button type="button" class="btn-ghost" onclick="prevStep(4)"><i class="fas fa-arrow-left"></i> Back</button>
+        <span class="step-counter">Step 4 of 4</span>
+        <button type="submit" id="submitBtn" class="btn-primary-glow" style="display:flex;">
+          <i class="fas fa-heartbeat"></i> Analyze My Risk
+        </button>
+      </div>
+    </div>
+
+  </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+let currentStep = 1;
+const totalSteps = 4;
+
+const fieldLabels = {
+  age: 'Age', sex: 'Sex', cp: 'Chest Pain', trestbps: 'Blood Pressure',
+  chol: 'Cholesterol', fbs: 'Blood Sugar', restecg: 'ECG',
+  thalach: 'Max Heart Rate', exang: 'Exercise Angina', oldpeak: 'ST Depression',
+  slope: 'ST Slope', ca: 'Major Vessels', thal: 'Thalassemia'
+};
+
+function goToStep(n) {
+  if (n > currentStep) return; // can't jump forward
+  setStep(n);
+}
+
+function nextStep(n) {
+  const panel = document.getElementById('panel' + n);
+  const inputs = panel.querySelectorAll('input[required], select[required]');
+  let valid = true;
+  inputs.forEach(inp => {
+    inp.classList.remove('is-invalid');
+    if (!inp.value.trim()) { inp.classList.add('is-invalid'); valid = false; }
+  });
+  if (!valid) {
+    const first = panel.querySelector('.is-invalid');
+    if (first) first.focus();
+    return;
+  }
+  setStep(n + 1);
+}
+
+function prevStep(n) { setStep(n - 1); }
+
+function setStep(n) {
+  currentStep = n;
+  document.querySelectorAll('.form-panel').forEach((p, i) => {
+    p.classList.toggle('active', i + 1 === n);
+  });
+  document.querySelectorAll('.step-tab').forEach((tab, i) => {
+    tab.classList.remove('active', 'done');
+    if (i + 1 === n) tab.classList.add('active');
+    if (i + 1 < n) tab.classList.add('done');
+  });
+  if (n === 4) buildReview();
+}
+
+function buildReview() {
+  const form = document.getElementById('predictForm');
+  const summary = document.getElementById('reviewSummary');
+  const data = new FormData(form);
+  let html = '';
+  for (const [key, val] of data.entries()) {
+    if (key === 'csrf_token') continue;
+    const label = fieldLabels[key] || key;
+    let display = val;
+    const el = form.querySelector(`[name="${key}"]`);
+    if (el && el.tagName === 'SELECT') {
+      const opt = el.querySelector(`option[value="${val}"]`);
+      display = opt ? opt.textContent.split(' –')[0] : val;
+    }
+    html += `<div><span style="font-weight:600;color:var(--clr-text)">${label}</span><br>${display}</div>`;
+  }
+  summary.innerHTML = html;
+}
+</script>
+{% endblock %}

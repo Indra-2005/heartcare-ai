@@ -1,0 +1,55 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# Virtual environments
+venv/
+env/
+.venv/
+.env/
+.conda/
+
+# Environment secrets
+.env
+
+# Flask / Database
+instance/
+*.db
+*.sqlite3
+
+# Migrations (keep the folder but ignore compiled files)
+migrations/versions/__pycache__/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Jupyter Notebooks output
+*.ipynb_checkpoints/
+
+# Model files (optional: include or exclude)
+# heart_disease_model.pkl
+
+# Static uploads (if added)
+static/uploads/
+
+# Logs
+*.log
+
+# Salesforce / Tooling
+.sfdx/

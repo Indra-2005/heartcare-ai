@@ -1,0 +1,189 @@
+{% extends "base.html" %}
+{% block title %}Register{% endblock %}
+
+{% block extra_css %}
+<style>
+/* Hide the global navbar and footer for standalone auth layout */
+#mainNav, .site-footer { display: none !important; }
+
+/* Advanced Auth Layout */
+.auth-layout {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 1fr;
+}
+@media (min-width: 992px) {
+  .auth-layout { grid-template-columns: 1fr 1.1fr; }
+}
+
+/* Left Form Area */
+.auth-left {
+  padding: 3rem 2rem;
+  display: flex; flex-direction: column; justify-content: center; align-items: center;
+  background: var(--clr-bg);
+}
+.auth-form-wrapper { width: 100%; max-width: 480px; animation: fadeUp 0.6s ease; }
+
+.auth-title { font-size: 2.2rem; font-weight: 800; color: var(--clr-text); margin-bottom: 0.5rem; letter-spacing: -0.5px; }
+.auth-subtitle { color: var(--clr-muted); font-size: 1rem; margin-bottom: 2.5rem; line-height: 1.5; }
+
+.form-control { background: var(--clr-surface); border: 2px solid transparent; border-radius: 12px; padding: 14px 18px; font-weight: 500; transition: 0.3s; }
+.form-control:focus { background: var(--clr-surface-2); border-color: var(--clr-primary); box-shadow: 0 8px 20px rgba(0,151,167,0.1); }
+.form-label { text-transform: none; font-size: 0.9rem; letter-spacing: 0; color: var(--clr-text); margin-bottom: 8px; }
+
+.btn-primary-glow { border-radius: 12px; padding: 16px; font-size: 1.05rem; }
+
+/* Grid specific to Register */
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+@media (max-width: 500px) { .form-row { grid-template-columns: 1fr; } }
+
+/* Password Strength */
+.strength-box { margin-top: 8px; }
+.strength-track { height: 4px; background: var(--clr-surface-2); border-radius: 4px; overflow: hidden; margin-bottom: 6px; }
+.strength-fill { height: 100%; width: 0; border-radius: 4px; transition: width 0.4s ease, background 0.4s ease; }
+.strength-label { font-size: 0.75rem; color: var(--clr-muted); }
+
+/* Right Visual Area */
+.auth-right {
+  display: none;
+  background: linear-gradient(135deg, #0c4a6e, #064e3b);
+  position: relative; overflow: hidden;
+  padding: 4rem; text-align: left;
+}
+@media (min-width: 992px) { .auth-right { display: flex; flex-direction: column; justify-content: center; } }
+.auth-right::before {
+  content: ''; position: absolute; inset: -50%;
+  background: radial-gradient(circle, rgba(72,187,120,0.15) 0%, transparent 60%);
+  animation: spin 35s linear infinite reverse; pointer-events: none;
+}
+.glass-testimonial {
+  position: relative; z-index: 1;
+  background: rgba(255,255,255,0.05); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255,255,255,0.1); border-radius: 24px;
+  padding: 3rem; max-width: 500px; margin: 0 auto;
+}
+.quote-icon { font-size: 3rem; color: #48bb78; margin-bottom: 1rem; opacity: 0.5; }
+.testimonial-text { font-size: 1.35rem; color: #e2e8f0; font-weight: 300; line-height: 1.6; margin-bottom: 2rem; }
+.testimonial-author { display: flex; align-items: center; gap: 15px; }
+.author-avatar { width: 50px; height: 50px; border-radius: 50%; background: #48bb78; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; color: white; font-weight: bold; }
+.author-info h4 { color: white; margin: 0; font-size: 1rem; }
+.author-info p { color: #94a3b8; margin: 0; font-size: 0.85rem; }
+
+.pw-wrapper { position: relative; }
+.pw-wrapper .form-control { padding-right: 48px; }
+.toggle-password { position: absolute; right: 14px; top: 40%; transform: translateY(-50%); background: none; border: none; color: var(--clr-muted); cursor: pointer; transition: 0.2s;}
+.toggle-password:hover { color: var(--clr-primary); }
+
+.auth-footer-text { margin-top: 2rem; text-align: center; color: var(--clr-muted); font-size: 0.95rem; padding-bottom: 2rem; }
+.auth-footer-text a { color: var(--clr-primary); font-weight: 600; text-decoration: none; }
+
+/* Shimmer Animation for Author */
+.shimmer-text {
+  font-weight: 700;
+  display: inline-block;
+  background: linear-gradient(
+    90deg, 
+    #e2e8f0 0%, 
+    #ffffff 25%, 
+    #48bb78 50%, 
+    #ffffff 75%, 
+    #e2e8f0 100%
+  );
+  background-size: 200% auto;
+  color: transparent;
+  -webkit-background-clip: text;
+  background-clip: text;
+  animation: shine 3s linear infinite;
+}
+@keyframes shine {
+  to { background-position: 200% center; }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="auth-layout">
+  <!-- Left Side: Form -->
+  <div class="auth-left">
+    <div class="auth-form-wrapper">
+      <h1 class="auth-title">Create Account</h1>
+      <p class="auth-subtitle">Join HeartCare and start tracking your cardiovascular health today.</p>
+
+      <form method="POST" novalidate>
+        {{ form.hidden_tag() }}
+
+        <div class="form-group">
+          <label class="form-label">Full Name</label>
+          {{ form.fullname(class="form-control" + (" is-invalid" if form.fullname.errors else ""), placeholder="e.g. John Doe") }}
+          {% for e in form.fullname.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Username</label>
+            {{ form.username(class="form-control" + (" is-invalid" if form.username.errors else ""), placeholder="e.g. john_doe") }}
+            {% for e in form.username.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+          </div>
+          <div class="form-group">
+            <label class="form-label">Email</label>
+            {{ form.email(class="form-control" + (" is-invalid" if form.email.errors else ""), placeholder="you@example.com") }}
+            {% for e in form.email.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Mobile Number</label>
+          {{ form.mobile_number(class="form-control" + (" is-invalid" if form.mobile_number.errors else ""), placeholder="+91 98765 43210") }}
+          {% for e in form.mobile_number.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Password</label>
+            <div class="pw-wrapper">
+              {{ form.password(class="form-control" + (" is-invalid" if form.password.errors else ""), placeholder="Min 6 chars", id="password") }}
+              <button type="button" class="toggle-password"><i class="fas fa-eye"></i></button>
+            </div>
+            <div class="strength-box">
+              <div class="strength-track"><div class="strength-fill" id="strengthBar"></div></div>
+              <div class="strength-label" id="strengthText">Enter a password</div>
+            </div>
+            {% for e in form.password.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+          </div>
+          <div class="form-group">
+            <label class="form-label">Confirm Password</label>
+            <div class="pw-wrapper">
+              {{ form.confirm_password(class="form-control" + (" is-invalid" if form.confirm_password.errors else ""), placeholder="Repeat password", id="confirm_password") }}
+              <button type="button" class="toggle-password" style="top:50%;"><i class="fas fa-eye"></i></button>
+            </div>
+            {% for e in form.confirm_password.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+          </div>
+        </div>
+
+        <button type="submit" class="btn-primary-glow w-100" style="justify-content:center; margin-top:2rem;">
+          Create My Account
+        </button>
+      </form>
+
+      <div class="auth-footer-text">
+        Already have an account? <a href="{{ url_for('login') }}">Sign in here</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Right Side: Graphic/Testimonial -->
+  <div class="auth-right">
+    <div class="glass-testimonial">
+      <i class="fas fa-quote-left quote-icon"></i>
+      <p class="testimonial-text">
+        "It is health that is real wealth and not pieces of gold and silver. Start monitoring your heart health today."
+      </p>
+      <div class="testimonial-author">
+        <div class="author-info">
+          <h4>– <span class="shimmer-text">HeartCare Insights</span></h4>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
