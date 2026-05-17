@@ -37,12 +37,15 @@ PostGre_Flask/
 ├── models.py                 # SQLAlchemy models (User, PredictionHistory)
 ├── forms.py                  # WTForms (Registration, Login, ChangePassword)
 ├── config.py                 # App configuration from environment
-├── heart_disease_model.pkl   # Trained Random Forest model
+├── models/                   # Directory containing the ML model
+│   └── heart_disease_model_v2.pkl # Trained Random Forest model (V2)
 ├── Heart.csv                 # Original dataset (reference)
 ├── requirements.txt          # Python dependencies
 ├── .env                      # Environment secrets (not committed)
 ├── .env.example              # Template for environment setup
 ├── migrations/               # Flask-Migrate database migrations
+├── notebooks/
+│   └── heart_disease_prediction.ipynb # Fully documented end-to-end ML pipeline
 ├── static/
 │   ├── css/style.css         # Shared dark design system
 │   ├── js/main.js            # Shared JS (navbar, toasts, counters)
@@ -123,13 +126,17 @@ DATABASE_URL=postgresql://user:password@localhost:5432/heartcare_db
 
 ---
 
-## 🧠 Machine Learning Model
+## 🧠 Machine Learning Model (V2)
 
-- **Algorithm**: Random Forest Classifier  
-- **Dataset**: [Cleveland Heart Disease (UCI ML Repository)](https://archive.ics.uci.edu/dataset/45/heart+disease)  
-- **Features**: 13 clinical parameters (age, sex, CP, BP, cholesterol, etc.)  
-- **Output**: Binary prediction + probability score  
-- **Accuracy**: ~98.5% on test split  
+- **Algorithm**: Random Forest Classifier (with SMOTE for class imbalance)
+- **Dataset**: [Cleveland Heart Disease Dataset (UCI ML Repository)](https://archive.ics.uci.edu/dataset/45/heart+disease)
+- **Features**: 13 specific clinical parameters (including Age, Sex, Chest Pain Type, Resting BP, Cholesterol, Fasting Blood Sugar, Resting ECG, Max Heart Rate, Exercise Induced Angina, ST Depression, ST Slope, Number of Major Vessels, and Thalassemia).
+- **Output**: Binary classification (Healthy/Diseased) + risk probability score
+- **Performance Metrics**: 
+  - **Accuracy**: ~82.9% on stratified test split
+  - **ROC-AUC Score**: ~91.8% (indicating excellent class separation)
+- **Notebook**: See `notebooks/heart_disease_prediction.ipynb` for the fully documented, step-by-step training pipeline (including data preprocessing, SMOTE, hyperparameter tuning, cross-validation, and evaluation).
+
 
 ---
 
