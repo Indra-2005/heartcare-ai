@@ -166,6 +166,7 @@ tbody td { padding: 0.9rem 1.2rem; color: var(--clr-text); vertical-align: middl
             <td>
               <form method="POST" action="{{ url_for('delete_history', entry_id=h.id) }}"
                     onsubmit="return confirm('Delete this record?')">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                 <button type="submit" class="delete-btn"><i class="fas fa-trash"></i></button>
               </form>
             </td>

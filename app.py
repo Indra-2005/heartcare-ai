@@ -1,16 +1,28 @@
-from flask import Flask, render_template, redirect, url_for, request, flash, jsonify, make_response
+"""
+HeartCare AI Flask Application
+Main application file containing all routes, configuration loading, database initialization, 
+and machine learning model integration for predicting cardiovascular risk.
+"""
+from flask import Flask, render_template, redirect, url_for, request, flash, jsonify
 from forms import RegistrationForm, LoginForm, ChangePasswordForm
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
 from models import db, bcrypt, User, PredictionHistory
 from config import Config
 from flask_migrate import Migrate
 import numpy as np
+import pandas as pd
 import pickle
+import os
+import warnings
 from datetime import datetime
 from functools import wraps
-import io
 
 def create_app():
+    """
+    Application factory function.
+    Initializes the Flask application, loads configurations, and sets up extensions 
+    including SQLAlchemy, Bcrypt, Flask-Migrate, and Flask-Login.
+    """
     app = Flask(__name__)
     app.config.from_object(Config)
 
@@ -37,13 +49,26 @@ def create_app():
 app = create_app()
 
 # ─── Load ML Model ────────────────────────────────────────────────────────────
-import os
 filename = os.path.join(os.path.dirname(__file__), 'models', 'heart_disease_model.pkl')
-model = pickle.load(open(filename, 'rb'))
+with warnings.catch_warnings():
+    warnings.simplefilter('ignore')
+    _model_data = pickle.load(open(filename, 'rb'))
+    # The .pkl stores a dict {'model': classifier, 'features': [...], ...}
+    model = _model_data['model'] if isinstance(_model_data, dict) else _model_data
+    model_features = _model_data.get('features') if isinstance(_model_data, dict) else None
 
 
 # ─── Helper ───────────────────────────────────────────────────────────────────
 def get_risk_level(probability_float):
+    """
+    Determines the categorical risk level based on the percentage probability.
+    
+    Args:
+        probability_float (float): The probability percentage (0-100) of heart disease.
+        
+    Returns:
+        str: 'high', 'moderate', or 'low' risk category.
+    """
     if probability_float >= 75:
         return 'high'
     elif probability_float >= 50:
@@ -55,22 +80,30 @@ def get_risk_level(probability_float):
 # ─── Public Routes ────────────────────────────────────────────────────────────
 @app.route("/")
 def index():
+    """Renders the landing page for the application."""
     return render_template('public/index.html')
 
 
 @app.route("/about")
 def about():
+    """Renders the About page detailing project information."""
     return render_template('public/about.html')
 
 
 @app.route("/termscondition")
 def TermsCondition():
+    """Renders the Terms and Conditions / Medical Disclaimer page."""
     return render_template('public/termscondition.html')
 
 
 # ─── Auth Routes ──────────────────────────────────────────────────────────────
 @app.route("/register", methods=['GET', 'POST'])
 def register():
+    """
+    Handles new user registration.
+    Validates form data, checks for existing users, and securely hashes the password.
+    Redirects to login upon successful registration.
+    """
     if current_user.is_authenticated:
         return redirect(url_for('main'))
     form = RegistrationForm()
@@ -120,6 +153,7 @@ def login():
 @app.route("/logout")
 @login_required
 def logout():
+    """Logs out the current authenticated user and clears the session."""
     logout_user()
     flash('You have been logged out successfully.', 'info')
     return redirect(url_for('index'))
@@ -129,6 +163,7 @@ def logout():
 @app.route("/main")
 @login_required
 def main():
+    """Renders the main prediction dashboard form where users enter clinical parameters."""
     return render_template('dashboard/main.html', title='Predict')
 
 
@@ -160,8 +195,15 @@ def predict():
             flash('Invalid input. Please fill in all fields correctly.', 'danger')
             return redirect(url_for('main'))
 
-        data = np.array([[age, sex, cp, trestbps, chol, fbs, restecg,
-                          thalach, exang, oldpeak, slope, ca, thal]])
+        data_dict = {
+            'age': [age], 'sex': [sex], 'cp': [cp], 'trestbps': [trestbps],
+            'chol': [chol], 'fbs': [fbs], 'restecg': [restecg], 'thalach': [thalach],
+            'exang': [exang], 'oldpeak': [oldpeak], 'slope': [slope], 'ca': [ca], 'thal': [thal]
+        }
+        if model_features:
+            data = pd.DataFrame(data_dict, columns=model_features)
+        else:
+            data = pd.DataFrame(data_dict)
 
         my_prediction = model.predict(data)
         prediction_proba = model.predict_proba(data)
@@ -202,6 +244,11 @@ def predict():
 @app.route("/profile")
 @login_required
 def profile():
+    """
+    Renders the user profile page.
+    Displays user information, aggregate statistics of their predictions, 
+    and a tabular history of past risk assessments.
+    """
     history = PredictionHistory.query.filter_by(user_id=current_user.id)\
                 .order_by(PredictionHistory.created_at.desc()).all()
     total = len(history)
@@ -215,6 +262,10 @@ def profile():
 @app.route("/change-password", methods=['GET', 'POST'])
 @login_required
 def change_password():
+    """
+    Handles secure password changes.
+    Verifies the user's current password before hashing and saving the new one.
+    """
     form = ChangePasswordForm()
     if form.validate_on_submit():
         if bcrypt.check_password_hash(current_user.password, form.current_password.data):
@@ -231,7 +282,11 @@ def change_password():
 @app.route("/delete-history/<int:entry_id>", methods=['POST'])
 @login_required
 def delete_history(entry_id):
-    entry = PredictionHistory.query.get_or_404(entry_id)
+    """
+    Deletes a specific prediction history entry.
+    Ensures that the entry exists and belongs to the currently authenticated user.
+    """
+    entry = db.get_or_404(PredictionHistory, entry_id)
     if entry.user_id != current_user.id:
         flash('Unauthorized action.', 'danger')
         return redirect(url_for('profile'))
@@ -266,10 +321,12 @@ def api_stats():
 # ─── Error Handlers ───────────────────────────────────────────────────────────
 @app.errorhandler(404)
 def not_found(e):
+    """Handles 404 Page Not Found errors."""
     return render_template('errors/404.html'), 404
 
 @app.errorhandler(500)
 def server_error(e):
+    """Handles 500 Internal Server Error exceptions."""
     return render_template('errors/500.html'), 500
 
 
