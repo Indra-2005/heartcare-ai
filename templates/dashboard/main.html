@@ -122,6 +122,7 @@
   </div>
 
   <form id="predictForm" action="{{ url_for('predict') }}" method="POST" novalidate>
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
     <!-- Step 1: Demographics -->
     <div class="form-panel active" id="panel1">

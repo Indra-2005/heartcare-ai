@@ -9,6 +9,7 @@ from flask_login import LoginManager, login_user, login_required, logout_user, c
 from models import db, bcrypt, User, PredictionHistory
 from config import Config
 from flask_migrate import Migrate
+from flask_wtf.csrf import CSRFProtect
 import numpy as np
 import pandas as pd
 import pickle
@@ -29,6 +30,7 @@ def create_app():
     db.init_app(app)
     bcrypt.init_app(app)
     Migrate(app, db)
+    CSRFProtect(app)
 
     login_manager = LoginManager()
     login_manager.login_view = 'login'
