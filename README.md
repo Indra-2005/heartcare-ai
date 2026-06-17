@@ -40,8 +40,8 @@ PostGre_Flask/
 ├── models/                   # Directory containing the ML model
 │   └── heart_disease_model (1).pkl # Trained Random Forest model (V2)
 ├── data/                     # Subdirectory with training datasets
-│   ├── Heart_disease_cleveland_new.csv  # 0-indexed processed dataset
-│   └── processed.cleveland.data         # Raw Cleveland data
+│   ├── Heart_disease_cleveland_new.csv  # 0-indexed processed Cleveland dataset
+│           
 ├── requirements.txt          # Python dependencies
 ├── .env                      # Environment secrets (not committed)
 ├── .env.example              # Template for environment setup
