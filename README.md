@@ -38,14 +38,17 @@ PostGre_Flask/
 ├── forms.py                  # WTForms (Registration, Login, ChangePassword)
 ├── config.py                 # App configuration from environment
 ├── models/                   # Directory containing the ML model
-│   └── heart_disease_model_v2.pkl # Trained Random Forest model (V2)
-├── Heart.csv                 # Original dataset (reference)
+│   └── heart_disease_model (1).pkl # Trained Random Forest model (V2)
+├── data/                     # Subdirectory with training datasets
+│   ├── Heart_disease_cleveland_new.csv  # 0-indexed processed dataset
+│   └── processed.cleveland.data         # Raw Cleveland data
 ├── requirements.txt          # Python dependencies
 ├── .env                      # Environment secrets (not committed)
 ├── .env.example              # Template for environment setup
 ├── migrations/               # Flask-Migrate database migrations
 ├── notebooks/
-│   └── heart_disease_prediction.ipynb # Fully documented end-to-end ML pipeline
+│   ├── heart_disease_prediction.ipynb # Fully documented end-to-end ML pipeline
+│   └── plots/                # Subdirectory containing output evaluation plots
 ├── static/
 │   ├── css/style.css         # Shared dark design system
 │   ├── js/main.js            # Shared JS (navbar, toasts, counters)
@@ -53,16 +56,20 @@ PostGre_Flask/
 └── templates/
     ├── base.html             # Base template (navbar, toasts, footer)
     ├── index.html            # Landing page (hero, features, CTA)
-    ├── login.html            # Login page
-    ├── register.html         # Registration page
-    ├── main.html             # Multi-step prediction form
-    ├── result.html           # Prediction results with gauge + recs
-    ├── profile.html          # User profile + prediction history
-    ├── about.html            # About page (no team section)
-    ├── change_password.html  # Password update form
-    ├── termscondition.html   # Terms & Conditions
-    ├── 404.html              # Custom 404 error page
-    └── 500.html              # Custom 500 error page
+    ├── auth/                 # Authentication views
+    │   ├── login.html        # Login page
+    │   ├── register.html     # Registration page
+    │   └── change_password.html # Password update form
+    ├── dashboard/            # Dashboard views
+    │   ├── main.html         # Multi-step prediction form
+    │   ├── result.html       # Prediction results with gauge + recs
+    │   └── profile.html      # User profile + prediction history
+    ├── public/               # Public informative views
+    │   ├── about.html        # About page
+    │   └── termscondition.html # Terms & Conditions
+    └── errors/               # Custom error pages
+        ├── 404.html          # Custom 404 error page
+        └── 500.html          # Custom 500 error page
 ```
 
 ---
@@ -126,17 +133,57 @@ DATABASE_URL=postgresql://user:password@localhost:5432/heartcare_db
 
 ---
 
-## 🧠 Machine Learning Model (V2)
+## 🧠 Machine Learning Model
 
-- **Algorithm**: Random Forest Classifier (with SMOTE for class imbalance)
+- **Algorithm**: Random Forest Classifier (with optional SMOTE for class imbalance)
 - **Dataset**: [Cleveland Heart Disease Dataset (UCI ML Repository)](https://archive.ics.uci.edu/dataset/45/heart+disease)
 - **Features**: 13 specific clinical parameters (including Age, Sex, Chest Pain Type, Resting BP, Cholesterol, Fasting Blood Sugar, Resting ECG, Max Heart Rate, Exercise Induced Angina, ST Depression, ST Slope, Number of Major Vessels, and Thalassemia).
 - **Output**: Binary classification (Healthy/Diseased) + risk probability score
-- **Performance Metrics**: 
-  - **Accuracy**: ~82.9% on stratified test split
-  - **ROC-AUC Score**: ~91.8% (indicating excellent class separation)
+- **Model Storage**: Saved as `models/heart_disease_model (1).pkl` and loaded directly by the Flask server.
 - **Notebook**: See `notebooks/heart_disease_prediction.ipynb` for the fully documented, step-by-step training pipeline (including data preprocessing, SMOTE, hyperparameter tuning, cross-validation, and evaluation).
 
+### 📊 Model Performance Metrics
+
+The model achieves exceptional accuracy and generalization, showing no signs of overfitting:
+
+| Metric | Score | Note |
+|---|---|---|
+| **Train Accuracy** | **90.8%** | Excellent classification on balanced training set |
+| **Test Accuracy** | **90.2%** | High robustness on unseen testing data |
+| **5-Fold CV ROC-AUC** | **91.4%** | Consistent performance across stratified splits |
+| **Test Split ROC-AUC** | **95.3%** | Outstanding class separation ability |
+
+### 📈 Test Classification Report
+
+```
+              precision    recall  f1-score   support
+
+     Healthy       0.94      0.88      0.91        33
+    Diseased       0.87      0.93      0.90        28
+
+    accuracy                           0.90        61
+   macro avg       0.90      0.90      0.90        61
+weighted avg       0.90      0.90      0.90        61
+```
+
+
+### 🖼️ Visual Model Evaluation & Insights
+
+Here are the visual evaluation outputs generated by the machine learning pipeline:
+
+#### 1. Model Evaluation Metrics (Confusion Matrix, ROC Curve, and Feature Importance)
+![Model Evaluation](notebooks/plots/model_evaluation.png)
+
+*The model displays exceptional performance on the test set, achieving a **95.3% ROC-AUC** and a balanced confusion matrix with very low false positive and false negative rates. The feature importance plot shows that **ca** (number of major vessels), **cp** (chest pain type), and **thalach** (max heart rate) are the strongest predictors.*
+
+#### 2. Exploratory Data Analysis & Target Distributions
+![EDA Overview](notebooks/plots/eda_overview.png)
+
+#### 3. Feature Correlation Matrix
+![Correlation Heatmap](notebooks/plots/correlation_heatmap.png)
+
+#### 4. Numerical Feature Distributions
+![Feature Distributions](notebooks/plots/feature_distributions.png)
 
 ---
 
