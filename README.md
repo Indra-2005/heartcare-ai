@@ -8,7 +8,7 @@
 [![scikit-learn](https://img.shields.io/badge/scikit--learn-ML-orange?style=flat-square)](https://scikit-learn.org)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green?style=flat-square)](LICENSE)
 
-HeartCare AI is a full-stack Flask web application that uses a **Random Forest classifier** to predict heart disease risk from 13 clinical parameters. It features a modern dark UI, user authentication, prediction history tracking, and personalized health recommendations.
+HeartCare AI is a full-stack Flask web application that uses a **Random Forest classifier** to predict heart disease risk from 13 clinical parameters. It features a modern light UI, user authentication, prediction history tracking, and personalized health recommendations.
 
 ---
 
@@ -23,7 +23,7 @@ HeartCare AI is a full-stack Flask web application that uses a **Random Forest c
 | 📄 **Risk Reports** | Tiered recommendations + printable PDF report |
 | 🔑 **Password Change** | Secure in-app password update with strength meter |
 | 🗑️ **Delete Records** | Remove individual prediction entries |
-| 🌗 **Dark UI** | Glassmorphic dark design system |
+| 🌗 **Light UI** | Premium medical-teal glassmorphic light design system |
 | 📱 **Responsive** | Works on desktop, tablet, and mobile |
 | ⚠️ **Error Pages** | Custom 404 and 500 error pages |
 
@@ -57,12 +57,11 @@ PostGre_Flask/
 │   ├── heart_disease_prediction.ipynb # Fully documented end-to-end ML pipeline
 │   └── plots/                # Subdirectory containing output evaluation plots
 ├── static/
-│   ├── css/style.css         # Shared dark design system
+│   ├── css/style.css         # Shared light design system
 │   ├── js/main.js            # Shared JS (navbar, toasts, counters)
 │   └── img/                  # Static images
 └── templates/
     ├── base.html             # Base template (navbar, toasts, footer)
-    ├── index.html            # Landing page (hero, features, CTA)
     ├── auth/                 # Authentication views
     │   ├── login.html        # Login page
     │   ├── register.html     # Registration page
@@ -72,6 +71,7 @@ PostGre_Flask/
     │   ├── result.html       # Prediction results with gauge + recs
     │   └── profile.html      # User profile + prediction history
     ├── public/               # Public informative views
+    │   ├── index.html        # Landing page (hero, features, CTA)
     │   ├── about.html        # About page
     │   └── termscondition.html # Terms & Conditions
     └── errors/               # Custom error pages
@@ -142,7 +142,7 @@ DATABASE_URL=postgresql://user:password@localhost:5432/heartcare_db
 
 ## 🧠 Machine Learning Model
 
-- **Algorithm**: Random Forest Classifier (with optional SMOTE for class imbalance)
+- **Algorithm**: Random Forest Classifier (with `class_weight='balanced'` for class imbalance handling)
 - **Dataset**: [Cleveland Heart Disease Dataset (UCI ML Repository)](https://archive.ics.uci.edu/dataset/45/heart+disease)
 - **Features**: 13 specific clinical parameters (including Age, Sex, Chest Pain Type, Resting BP, Cholesterol, Fasting Blood Sugar, Resting ECG, Max Heart Rate, Exercise Induced Angina, ST Depression, ST Slope, Number of Major Vessels, and Thalassemia).
 - **Output**: Binary classification (Healthy/Diseased) + risk probability score
@@ -191,22 +191,22 @@ The model achieves exceptional accuracy and generalization, showing no signs of 
 
 | Metric | Score | Note |
 |---|---|---|
-| **Train Accuracy** | **90.8%** | Excellent classification on balanced training set |
-| **Test Accuracy** | **90.2%** | High robustness on unseen testing data |
-| **5-Fold CV ROC-AUC** | **91.4%** | Consistent performance across stratified splits |
-| **Test Split ROC-AUC** | **95.3%** | Outstanding class separation ability |
+| **Train Accuracy** | **90.5%** | Robust fitting accuracy on balanced training set |
+| **Test Accuracy** | **88.5%** | High model generalization on testing split |
+| **5-Fold CV ROC-AUC** | **88.7%** | Consistent performance across stratified splits |
+| **Test Split ROC-AUC** | **96.2%** | Outstanding class separation ability |
 
 ### 📈 Test Classification Report
 
 ```
               precision    recall  f1-score   support
 
-     Healthy       0.94      0.88      0.91        33
-    Diseased       0.87      0.93      0.90        28
+     Healthy       0.93      0.85      0.89        33
+    Diseased       0.84      0.93      0.88        28
 
-    accuracy                           0.90        61
-   macro avg       0.90      0.90      0.90        61
-weighted avg       0.90      0.90      0.90        61
+    accuracy                           0.89        61
+   macro avg       0.89      0.89      0.89        61
+weighted avg       0.89      0.89      0.89        61
 ```
 
 

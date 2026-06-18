@@ -4,6 +4,7 @@ Main application file containing all routes, configuration loading, database ini
 and machine learning model integration for predicting cardiovascular risk.
 """
 from flask import Flask, render_template, redirect, url_for, request, flash, jsonify
+from urllib.parse import urlparse
 from forms import RegistrationForm, LoginForm, ChangePasswordForm
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
 from models import db, bcrypt, User, PredictionHistory
@@ -54,7 +55,8 @@ app = create_app()
 filename = os.path.join(os.path.dirname(__file__), 'models', 'heart_disease_model.pkl')
 with warnings.catch_warnings():
     warnings.simplefilter('ignore')
-    _model_data = pickle.load(open(filename, 'rb'))
+    with open(filename, 'rb') as f:
+        _model_data = pickle.load(f)
     # The .pkl stores a dict {'model': classifier, 'features': [...], ...}
     model = _model_data['model'] if isinstance(_model_data, dict) else _model_data
     model_features = _model_data.get('features') if isinstance(_model_data, dict) else None
@@ -145,6 +147,9 @@ def login():
         if user and bcrypt.check_password_hash(user.password, form.password.data):
             login_user(user, remember=form.remember.data)
             next_page = request.args.get('next')
+            # Prevent open redirect attacks by validating the next URL is relative
+            if next_page and urlparse(next_page).netloc != '':
+                next_page = None
             flash(f'Welcome back, {user.fullname.split()[0]}!', 'success')
             return redirect(next_page) if next_page else redirect(url_for('main'))
         else:

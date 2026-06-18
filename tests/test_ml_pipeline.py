@@ -8,7 +8,7 @@ import os
 import yaml
 import pytest
 import pandas as pd
-import joblib
+import pickle
 import numpy as np
 from ml.pipeline import load_and_validate_data
 
@@ -41,7 +41,8 @@ def test_data_pipeline_dimensions(ml_config):
 def test_model_inference_numpy(ml_config):
     """INFERENCE GUARDRAIL: Verifies model can successfully accept a numpy row matrix and predict."""
     model_path = ml_config['model']['output_path']
-    model_data = joblib.load(model_path)
+    with open(model_path, 'rb') as f:
+        model_data = pickle.load(f)
     # Extract the model from the dictionary if it was saved as one
     model = model_data['model'] if isinstance(model_data, dict) else model_data
     
@@ -59,7 +60,8 @@ def test_model_inference_numpy(ml_config):
 def test_model_inference_dataframe(ml_config):
     """INFERENCE GUARDRAIL: Verifies model can successfully accept a structured DataFrame and predict."""
     model_path = ml_config['model']['output_path']
-    model_data = joblib.load(model_path)
+    with open(model_path, 'rb') as f:
+        model_data = pickle.load(f)
     # Extract the model from the dictionary if it was saved as one
     model = model_data['model'] if isinstance(model_data, dict) else model_data
     

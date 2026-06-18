@@ -1,7 +1,7 @@
 from flask_sqlalchemy import SQLAlchemy
 from flask_bcrypt import Bcrypt
 from flask_login import UserMixin
-from datetime import datetime
+from datetime import datetime, timezone
 
 db = SQLAlchemy()
 bcrypt = Bcrypt()
@@ -21,7 +21,7 @@ class User(db.Model, UserMixin):
     mobile_number = db.Column(db.String(20), unique=True, nullable=False)
     password = db.Column(db.String(200), nullable=False)
     is_active = db.Column(db.Boolean, default=True)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
 
     predictions = db.relationship('PredictionHistory', backref='user', lazy=True,
                                    cascade='all, delete-orphan')
@@ -69,4 +69,4 @@ class PredictionHistory(db.Model):
     prediction_result = db.Column(db.String(200))
     probability = db.Column(db.Float)
     risk_level = db.Column(db.String(20))  # 'high', 'moderate', 'low'
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))

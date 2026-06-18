@@ -12,8 +12,12 @@ model:
   
   # Hyperparameters tuned to balance accuracy and prevent overfitting
   hyperparameters:
-    n_estimators: 150
-    max_depth: 8          # Explicitly constrained to avoid overfitting
+    n_estimators: 200
+    max_depth: 8
+    min_samples_split: 10
+    min_samples_leaf: 4
+    max_features: "sqrt"
+    class_weight: "balanced"         # Explicitly constrained to avoid overfitting
     random_state: 42      # Set for train/test splitting and classifier reproducibility
     
   # File path where the serialized trained model object (pickle format) will be saved

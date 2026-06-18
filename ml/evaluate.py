@@ -10,7 +10,7 @@ import os
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 import yaml
-import joblib
+import pickle
 import matplotlib.pyplot as plt
 from sklearn.metrics import classification_report, confusion_matrix, ConfusionMatrixDisplay
 from ml.pipeline import load_and_validate_data, prepare_train_test_sets
@@ -45,7 +45,8 @@ def run_evaluation(config_path: str):
     if not os.path.exists(output_path):
         raise FileNotFoundError(f"Evaluation Error: Trained model not found at {output_path}. Run train.py first.")
     
-    model_data = joblib.load(output_path)
+    with open(output_path, 'rb') as f:
+        model_data = pickle.load(f)
     # Support both dictionary structure (which stores model + features) or raw classifier object
     model = model_data['model'] if isinstance(model_data, dict) else model_data
 
