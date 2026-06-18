@@ -24,7 +24,7 @@ instance/
 *.db
 *.sqlite3
 
-# Migrations (keep the folder but ignore compiled files)
+# Migrations 
 migrations/versions/__pycache__/
 
 # IDE
@@ -42,10 +42,9 @@ desktop.ini
 # Jupyter Notebooks output
 *.ipynb_checkpoints/
 
-# Model files (optional: include or exclude)
-# heart_disease_model.pkl
 
-# Static uploads (if added)
+
+# Static uploads 
 static/uploads/
 
 # Logs

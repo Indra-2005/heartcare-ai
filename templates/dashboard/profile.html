@@ -3,69 +3,83 @@
 
 {% block extra_css %}
 <style>
-.profile-page { max-width: 1100px; margin: 0 auto; padding: 3rem 2rem; }
+.profile-page { max-width: 1100px; margin: 0 auto; padding: 4rem 2rem; }
 .profile-header { display: flex; gap: 2rem; align-items: flex-start; margin-bottom: 2.5rem; flex-wrap: wrap; }
 .avatar {
   width: 80px; height: 80px; border-radius: 50%;
-  background: linear-gradient(135deg, var(--clr-primary), var(--clr-primary-d));
+  background: linear-gradient(135deg, var(--clr-primary), var(--clr-accent));
   display: flex; align-items: center; justify-content: center;
-  font-size: 2rem; color: #fff; font-weight: 800; flex-shrink: 0;
-  box-shadow: 0 0 0 4px rgba(0,194,203,0.2);
+  font-size: 2rem; color: #070a13; font-weight: 800; flex-shrink: 0;
+  box-shadow: 0 0 20px rgba(0, 229, 255, 0.3);
 }
-.profile-info h1 { font-size: 1.7rem; margin-bottom: 0.2rem; }
-.profile-info p { color: var(--clr-muted); font-size: 0.9rem; }
+.profile-info h1 { font-size: 1.8rem; margin-bottom: 0.3rem; }
+.profile-info p { color: var(--clr-muted); font-size: 0.92rem; }
 .profile-chips { display: flex; gap: 0.6rem; margin-top: 0.8rem; flex-wrap: wrap; }
 .chip {
-  display: inline-flex; align-items: center; gap: 6px;
-  background: var(--clr-surface); border: 1px solid var(--clr-border);
-  border-radius: 50px; padding: 4px 14px; font-size: 0.8rem; color: var(--clr-muted);
+  display: inline-flex; align-items: center; gap: 8px;
+  background: rgba(255, 255, 255, 0.02); border: 1px solid var(--clr-border);
+  border-radius: 50px; padding: 6px 16px; font-size: 0.82rem; color: var(--clr-text);
+  font-weight: 500;
 }
-.chip i { color: var(--clr-primary); font-size: 0.8rem; }
+.chip i { color: var(--clr-primary); font-size: 0.85rem; }
 .header-actions { margin-left: auto; display: flex; gap: 0.8rem; flex-wrap: wrap; }
 
 /* Stats row */
 .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.2rem; margin-bottom: 2.5rem; }
 .stat-card {
-  background: var(--clr-surface); border: 1px solid var(--clr-border);
-  border-radius: var(--radius-md); padding: 1.5rem; text-align: center;
+  background: var(--clr-glass);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--clr-border);
+  border-radius: var(--radius-md); padding: 1.75rem; text-align: center;
   transition: var(--transition);
+  box-shadow: var(--shadow-card);
 }
-.stat-card:hover { border-color: rgba(0,194,203,0.3); transform: translateY(-3px); }
-.stat-big { font-size: 2rem; font-weight: 800; display: block; }
-.stat-sub { font-size: 0.8rem; color: var(--clr-muted); margin-top: 4px; }
+.stat-card:hover {
+  border-color: rgba(0, 229, 255, 0.25);
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-card), 0 5px 20px rgba(0, 229, 255, 0.05);
+}
+.stat-big { font-size: 2.2rem; font-weight: 800; display: block; }
+.stat-sub { font-size: 0.82rem; color: var(--clr-muted); margin-top: 6px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
 
 /* History table */
 .history-card {
-  background: var(--clr-surface); border: 1px solid var(--clr-border);
+  background: var(--clr-glass);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--clr-border);
   border-radius: var(--radius-lg); overflow: hidden;
+  box-shadow: var(--shadow-card);
 }
 .history-card-header {
-  padding: 1.5rem 2rem; border-bottom: 1px solid var(--clr-border);
+  padding: 1.75rem 2.5rem; border-bottom: 1px solid var(--clr-border);
   display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;
 }
-.history-card-header h2 { font-size: 1.1rem; font-weight: 700; }
+.history-card-header h2 { font-size: 1.25rem; font-weight: 800; }
 .table-wrap { overflow-x: auto; }
-table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
 thead th {
-  padding: 0.9rem 1.2rem; text-align: left;
-  font-size: 0.75rem; font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase;
+  padding: 1rem 1.25rem; text-align: left;
+  font-size: 0.78rem; font-weight: 700; letter-spacing: 0.75px; text-transform: uppercase;
   color: var(--clr-muted); border-bottom: 1px solid var(--clr-border);
-  background: var(--clr-surface-2);
+  background: rgba(255, 255, 255, 0.02);
 }
 tbody tr { border-bottom: 1px solid var(--clr-border); transition: var(--transition); }
-tbody tr:hover { background: var(--clr-surface-2); }
-tbody td { padding: 0.9rem 1.2rem; color: var(--clr-text); vertical-align: middle; }
+tbody tr:hover { background: rgba(255, 255, 255, 0.02); }
+tbody td { padding: 1rem 1.25rem; color: var(--clr-text); vertical-align: middle; font-weight: 500; }
 .delete-btn {
-  background: rgba(252,129,129,0.1); border: 1px solid rgba(252,129,129,0.25);
-  color: #fca5a5; border-radius: 6px; padding: 5px 12px;
-  font-size: 0.78rem; cursor: pointer; transition: var(--transition);
+  background: rgba(244, 63, 94, 0.1); border: 1px solid rgba(244, 63, 94, 0.25);
+  color: var(--clr-danger); border-radius: 8px; padding: 6px 12px;
+  font-size: 0.8rem; cursor: pointer; transition: var(--transition);
+  display: inline-flex; align-items: center; justify-content: center;
 }
-.delete-btn:hover { background: rgba(252,129,129,0.2); }
+.delete-btn:hover { background: rgba(244, 63, 94, 0.2); transform: scale(1.05); }
 .empty-state {
-  text-align: center; padding: 4rem 2rem;
+  text-align: center; padding: 5rem 2rem;
   color: var(--clr-muted);
 }
-.empty-state i { font-size: 3rem; margin-bottom: 1rem; opacity: 0.3; }
+.empty-state i { font-size: 3.5rem; margin-bottom: 1.25rem; color: var(--clr-primary); opacity: 0.8; filter: drop-shadow(0 0 15px rgba(0,229,255,0.3)); }
 
 @media (max-width: 900px) {
   .stats-row { grid-template-columns: 1fr 1fr; }
@@ -73,7 +87,7 @@ tbody td { padding: 0.9rem 1.2rem; color: var(--clr-text); vertical-align: middl
 @media (max-width: 500px) {
   .stats-row { grid-template-columns: 1fr; }
   .profile-header { flex-direction: column; align-items: center; text-align: center; }
-  .header-actions { margin-left: 0; justify-content: center; }
+  .header-actions { margin-left: 0; justify-content: center; width: 100%; }
   .profile-chips { justify-content: center; }
 }
 </style>

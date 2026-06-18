@@ -51,7 +51,7 @@ def create_app():
 app = create_app()
 
 # ─── Load ML Model ────────────────────────────────────────────────────────────
-filename = os.path.join(os.path.dirname(__file__), 'models', 'heart_disease_model (1).pkl')
+filename = os.path.join(os.path.dirname(__file__), 'models', 'heart_disease_model.pkl')
 with warnings.catch_warnings():
     warnings.simplefilter('ignore')
     _model_data = pickle.load(open(filename, 'rb'))
