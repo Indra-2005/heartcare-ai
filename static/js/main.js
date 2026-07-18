@@ -1,6 +1,4 @@
-// ── Ultra-compatible HeartCare AI JavaScript ──────────────────────────────────
-// Wrapping features in error handlers to ensure one failing feature (on older mobile browsers)
-// does not crash the entire execution engine.
+
 
 window.addEventListener('load', function() {
 

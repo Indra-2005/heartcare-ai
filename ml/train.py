@@ -7,7 +7,7 @@ both the model object and training feature names.
 
 import sys
 import os
-# Add the project root directory to the python path to support direct script execution
+
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 import argparse
@@ -56,11 +56,10 @@ def run_training(config_path: str):
 
     # 4. Serialize and Save Model Artifact
     print("[4/4] Serializing model artifact...")
-    # Ensure the models/ directory exists before saving
+    
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
     
-    # Save as a dictionary containing the model and the training feature names.
-    # This structure is required by app.py for feature alignment during web inference.
+   
     model_data = {
         'model': model,
         'features': list(X_train.columns)
@@ -80,4 +79,4 @@ if __name__ == "__main__":
     )
     args = parser.parse_args()
     
-    run_training(args.config)
+    run_training(args.config)

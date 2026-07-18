@@ -59,9 +59,9 @@ def prepare_train_test_sets(X, y, test_size=0.2, random_state=42):
     Returns:
         tuple: Splitted training and testing datasets (X_train, X_test, y_train, y_test).
     """
-    # Use stratify=y to ensure training and testing splits maintain the same class proportions
+    
     X_train, X_test, y_train, y_test = train_test_split(
         X, y, test_size=test_size, random_state=random_state, stratify=y
     )
     print(f" Train shape: {X_train.shape} | Test shape: {X_test.shape}")
-    return X_train, X_test, y_train, y_test
+    return X_train, X_test, y_train, y_test

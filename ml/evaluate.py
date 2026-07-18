@@ -6,7 +6,7 @@ generates performance metrics (classification report), and saves a confusion mat
 
 import sys
 import os
-# Add the project root directory to the python path to support direct script execution
+
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 import yaml
@@ -77,4 +77,4 @@ def run_evaluation(config_path: str):
     print(f"Success! Evaluation plot saved to: {plot_save_path}\n")
 
 if __name__ == "__main__":
-    run_evaluation("config/ml_config.yaml")
+    run_evaluation("config/ml_config.yaml")
