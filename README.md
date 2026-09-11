@@ -2,6 +2,8 @@
 
 > **Production-grade cardiovascular disease risk prediction web platform powered by machine learning.**
 
+**Repository**: [https://github.com/Indra-2005/heartcare-ai](https://github.com/Indra-2005/heartcare-ai)
+
 [![Live Demo](https://img.shields.io/badge/Render-Live%20Demo-46E3B7?style=flat-square&logo=render)](https://heartcare-ai-1.onrender.com)
 [![Python](https://img.shields.io/badge/Python-3.12-3776AB?style=flat-square&logo=python&logoColor=white)](https://python.org)
 [![Flask](https://img.shields.io/badge/Flask-3.0.3-000000?style=flat-square&logo=flask)](https://flask.palletsprojects.com/)
@@ -19,12 +21,13 @@ HeartCare AI is an end-to-end clinical decision-support web application that pre
 
 The application is deployed and running live on **Render**:
 
-🔗 **[https://heartcare-ai-1.onrender.com](https://heartcare-ai-1.onrender.com)**
+**🌐 [Live Demo → https://heartcare-ai-1.onrender.com](https://heartcare-ai-1.onrender.com)**
 
 - **Hosting Platform**: Render (Web Service)
 - **Runtime**: Python 3.12
 - **WSGI Server**: Gunicorn 22.0.0 (2 worker processes, 120s timeout)
 - **Database**: Managed PostgreSQL
+- **GitHub Repository**: [https://github.com/Indra-2005/heartcare-ai](https://github.com/Indra-2005/heartcare-ai)
 
 ---
 
@@ -213,13 +216,20 @@ weighted avg       0.89      0.89      0.89        61
 
 ### Visual Diagnostic Charts
 
-| Confusion Matrix (Test Set) | ROC Curve & Feature Importance |
-|---|---|
-| ![Confusion Matrix](notebooks/plots/confusion_matrix.png) | ![Model Evaluation](notebooks/plots/model_evaluation.png) |
+#### Confusion Matrix (Test Set)
+![Confusion Matrix](notebooks/plots/confusion_matrix.png)
 
-| Exploratory Data Analysis | Correlation Heatmap |
-|---|---|
-| ![EDA Overview](notebooks/plots/eda_overview.png) | ![Correlation Heatmap](notebooks/plots/correlation_heatmap.png) |
+#### Model Evaluation & Feature Importance
+![Model Evaluation](notebooks/plots/model_evaluation.png)
+
+#### Exploratory Data Analysis Overview
+![EDA Overview](notebooks/plots/eda_overview.png)
+
+#### Feature Correlation Heatmap
+![Correlation Heatmap](notebooks/plots/correlation_heatmap.png)
+
+#### Feature Distributions
+![Feature Distributions](notebooks/plots/feature_distributions.png)
 
 ---
 
@@ -273,7 +283,7 @@ tests/test_ml_pipeline.py::test_probability_output_range PASSED          [100%]
 - `test_feature_names_match_model`: Ensures training columns match model feature schema.
 - `test_model_inference_dataframe`: Verifies inference with named Pandas DataFrame.
 - `test_model_inference_numpy_with_feature_names`: Verifies inference when NumPy arrays are wrapped with feature names.
-- `test_probability_output_range`: Asserts all output probabilities fall strictly in $[0, 1]$.
+- `test_probability_output_range`: Asserts all output probabilities fall strictly between 0 and 1.
 
 ---
 
