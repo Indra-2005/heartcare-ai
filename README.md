@@ -2,13 +2,13 @@
 
 > **AI-powered cardiovascular risk prediction using machine learning**
 
-[![Python](https://img.shields.io/badge/Python-3.9+-blue?style=flat-square&logo=python)](https://python.org)
+[![Python](https://img.shields.io/badge/Python-3.10+-blue?style=flat-square&logo=python)](https://python.org)
 [![Flask](https://img.shields.io/badge/Flask-3.x-black?style=flat-square&logo=flask)](https://flask.palletsprojects.com/)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15+-336791?style=flat-square&logo=postgresql)](https://postgresql.org)
 [![scikit-learn](https://img.shields.io/badge/scikit--learn-ML-orange?style=flat-square)](https://scikit-learn.org)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green?style=flat-square)](LICENSE)
 
-HeartCare AI is a full-stack Flask web application that uses a **Random Forest classifier** to predict heart disease risk from 13 clinical parameters. It features a modern light UI, user authentication, prediction history tracking, and personalized health recommendations.
+HeartCare AI is a full-stack Flask web application that uses a **Random Forest classifier** to predict heart disease risk from 13 clinical parameters. It features user authentication, prediction history tracking, tiered health recommendations, and a printable PDF report.
 
 ---
 
@@ -16,16 +16,15 @@ HeartCare AI is a full-stack Flask web application that uses a **Random Forest c
 
 | Feature | Description |
 |---|---|
-| 🤖 **AI Prediction** | Random Forest model on Cleveland Heart Disease dataset |
-| 🔐 **Authentication** | Secure registration/login with bcrypt hashing |
-| 📊 **Prediction History** | Track and review past assessments per user |
-| 📈 **Visual Analytics** | SVG risk gauge + metrics grid on result page |
-| 📄 **Risk Reports** | Tiered recommendations + printable PDF report |
-| 🔑 **Password Change** | Secure in-app password update with strength meter |
-| 🗑️ **Delete Records** | Remove individual prediction entries |
-| 🌗 **Light UI** | Premium medical-teal glassmorphic light design system |
-| 📱 **Responsive** | Works on desktop, tablet, and mobile |
+| 🤖 **AI Prediction** | Random Forest model trained on the Cleveland Heart Disease dataset |
+| 🔐 **Authentication** | Secure registration and login with bcrypt password hashing |
+| 📊 **Prediction History** | Per-user history with delete capability |
+| 📈 **Visual Analytics** | SVG risk gauge + key metrics on the result page |
+| 📄 **Risk Reports** | Tiered recommendations + browser print-to-PDF |
+| 🔑 **Password Change** | Secure in-app password update |
+| 🗑️ **Delete Records** | Remove individual prediction history entries |
 | ⚠️ **Error Pages** | Custom 404 and 500 error pages |
+| 📱 **Responsive** | Works on desktop, tablet, and mobile |
 
 ---
 
@@ -33,50 +32,41 @@ HeartCare AI is a full-stack Flask web application that uses a **Random Forest c
 
 ```
 PostGre_Flask/
-├── app.py                    # Main Flask application + all routes
+├── app.py                    # Flask application factory + all routes
 ├── models.py                 # SQLAlchemy models (User, PredictionHistory)
 ├── forms.py                  # WTForms (Registration, Login, ChangePassword)
-├── config.py                 # App configuration from environment
-├── config/                   # Directory containing configuration files
-│   └── ml_config.yaml        # Machine learning pipeline training configurations
-├── ml/                       # Machine learning pipeline directory
-│   ├── pipeline.py           # Preprocessing and validation utility functions
-│   ├── train.py              # CLI orchestrator for classifier training
-│   └── evaluate.py           # Classifier evaluation and metrics generator
-├── models/                   # Directory containing serialized model pickles
-│   └── heart_disease_model.pkl # Trained Random Forest model dictionary (V2)
-├── data/                     # Subdirectory with training datasets
-│   ├── Heart_disease_cleveland_new.csv  # 0-indexed processed Cleveland dataset      
-├── tests/                    # Project test suite directory
-│   └── test_ml_pipeline.py   # Unit & integration tests for the ML pipeline
-├── requirements.txt          # Python dependencies
-├── .env                      # Environment secrets (not committed)
-├── .env.example              # Template for environment setup
-├── migrations/               # Flask-Migrate database migrations
+├── config.py                 # App configuration loaded from environment variables
+├── config/
+│   └── ml_config.yaml        # ML pipeline configuration (hyperparameters, paths)
+├── ml/
+│   ├── __init__.py
+│   ├── pipeline.py           # Data loading, validation, and train/test splitting
+│   ├── train.py              # CLI training script
+│   └── evaluate.py           # Evaluation script (report + ROC-AUC + confusion matrix)
+├── models/
+│   └── heart_disease_model.pkl  # Trained model artifact (dict: model + feature names)
+├── data/
+│   └── Heart_disease_cleveland_new.csv  # Processed Cleveland dataset (303 rows, 14 cols)
+├── tests/
+│   └── test_ml_pipeline.py   # ML pipeline tests (6 tests)
 ├── notebooks/
-│   ├── heart_disease_prediction.ipynb # Fully documented end-to-end ML pipeline
-│   └── plots/                # Subdirectory containing output evaluation plots
+│   ├── Heart_disease_prediction.ipynb  # Exploratory notebook with full EDA + SMOTE experiments
+│   └── plots/                # Evaluation plots generated by evaluate.py
+├── migrations/               # Flask-Migrate / Alembic migration files
 ├── static/
-│   ├── css/style.css         # Shared light design system
-│   ├── js/main.js            # Shared JS (navbar, toasts, counters)
-│   └── img/                  # Static images
-└── templates/
-    ├── base.html             # Base template (navbar, toasts, footer)
-    ├── auth/                 # Authentication views
-    │   ├── login.html        # Login page
-    │   ├── register.html     # Registration page
-    │   └── change_password.html # Password update form
-    ├── dashboard/            # Dashboard views
-    │   ├── main.html         # Multi-step prediction form
-    │   ├── result.html       # Prediction results with gauge + recs
-    │   └── profile.html      # User profile + prediction history
-    ├── public/               # Public informative views
-    │   ├── index.html        # Landing page (hero, features, CTA)
-    │   ├── about.html        # About page
-    │   └── termscondition.html # Terms & Conditions
-    └── errors/               # Custom error pages
-        ├── 404.html          # Custom 404 error page
-        └── 500.html          # Custom 500 error page
+│   ├── css/style.css
+│   ├── js/main.js
+│   └── favicon.svg
+├── templates/
+│   ├── base.html
+│   ├── auth/                 # login.html, register.html, change_password.html
+│   ├── dashboard/            # main.html, result.html, profile.html
+│   ├── public/               # index.html, about.html, termscondition.html
+│   └── errors/               # 404.html, 500.html
+├── requirements.txt
+├── Procfile                  # Gunicorn production startup command
+├── .env.example              # Environment variable template (copy to .env)
+└── .gitignore
 ```
 
 ---
@@ -84,14 +74,14 @@ PostGre_Flask/
 ## 🔧 Setup & Installation
 
 ### Prerequisites
-- Python 3.9+
-- PostgreSQL database
+- Python 3.10+
+- PostgreSQL (local) or a managed PostgreSQL service
 - Git
 
 ### 1. Clone the Repository
 ```bash
-git clone https://github.com/YOUR_USERNAME/heartcare-ai.git
-cd heartcare-ai/PostGre_Flask
+git clone https://github.com/Indra-2005/heartcare-ai.git
+cd heartcare-ai
 ```
 
 ### 2. Create Virtual Environment
@@ -108,18 +98,22 @@ source venv/bin/activate
 pip install -r requirements.txt
 ```
 
-### 4. Configure Environment
+### 4. Configure Environment Variables
 ```bash
 cp .env.example .env
-# Edit .env with your actual values
+# Edit .env with your actual values (see Environment Variables section below)
 ```
 
-### 5. Set Up Database
+### 5. Set Up the Database
 ```bash
-flask db init
-flask db migrate -m "Initial migration"
 flask db upgrade
 ```
+> If this is a fresh setup without any existing migrations, run:
+> ```bash
+> flask db init
+> flask db migrate -m "initial migration"
+> flask db upgrade
+> ```
 
 ### 6. Run the Application
 ```bash
@@ -131,72 +125,83 @@ python app.py
 
 ## ⚙️ Environment Variables
 
-See `.env.example` for all required variables:
+Copy `.env.example` to `.env` and set the following:
 
-```env
-SECRET_KEY=your_secret_key_here
-DATABASE_URL=postgresql://user:password@localhost:5432/heartcare_db
-```
-
----
-
-## 🧠 Machine Learning Model
-
-- **Algorithm**: Random Forest Classifier (with `class_weight='balanced'` for class imbalance handling)
-- **Dataset**: [Cleveland Heart Disease Dataset (UCI ML Repository)](https://archive.ics.uci.edu/dataset/45/heart+disease)
-- **Features**: 13 specific clinical parameters (including Age, Sex, Chest Pain Type, Resting BP, Cholesterol, Fasting Blood Sugar, Resting ECG, Max Heart Rate, Exercise Induced Angina, ST Depression, ST Slope, Number of Major Vessels, and Thalassemia).
-- **Output**: Binary classification (Healthy/Diseased) + risk probability score
-- **Model Storage**: Saved as `models/heart_disease_model.pkl` (serialized dictionary containing both the classifier and training features) and loaded directly by the Flask server.
-- **Notebook**: See `notebooks/heart_disease_prediction.ipynb` for the fully documented, step-by-step training pipeline (including data preprocessing, SMOTE, hyperparameter tuning, cross-validation, and evaluation).
-
----
-
-## ⚙️ Machine Learning Pipeline
-
-The project features a modular, configuration-driven Machine Learning pipeline that automates data validation, model training, performance evaluation, and quality assurance testing.
-
-### 1. Configuration (`config/ml_config.yaml`)
-Pipeline parameters are controlled via a YAML configuration file:
-* **Dataset Config**: Defines target labels and CSV paths.
-* **Hyperparameters**: Explicitly tunes classifier options (e.g. tree depth limits) to prevent overfitting.
-* **Artifact Path**: Directs where serialized model pickles are saved.
-
-### 2. Execution Scripts (`ml/`)
-* **Training (`ml/train.py`)**: Runs data parsing, feature extraction, model fitment, and exports a production-ready dictionary containing `{'model': classifier, 'features': list_of_features}` to ensure web app input feature alignment.
-* **Evaluation (`ml/evaluate.py`)**: Loads the model to run predictions on the test set, output a classification metrics report, and update visual evaluation charts like the confusion matrix.
-
-#### CLI Commands:
-```bash
-# Execute training pipeline
-python -m ml.train
-
-# Run model evaluation metrics and update plots
-python -m ml.evaluate
-```
-
-### 3. Verification & Guardrail Tests (`tests/`)
-We use `pytest` to enforce strict ML engineering guardrails:
-* **Paths Verification**: Ensures config file paths align with the physical environment.
-* **Data Dimensions Check**: Guards against feature drift by validating that exactly 13 input columns are prepared.
-* **Inference Guardrails**: Validates classifier behavior with mock patients, testing both raw Numpy matrices and structured Pandas DataFrames.
-
-#### Run Tests:
-```bash
-python -m pytest
-```
-
-### 📊 Model Performance Metrics
-
-The model achieves exceptional accuracy and generalization, showing no signs of overfitting:
-
-| Metric | Score | Note |
+| Variable | Required | Description |
 |---|---|---|
-| **Train Accuracy** | **90.5%** | Robust fitting accuracy on balanced training set |
-| **Test Accuracy** | **88.5%** | High model generalization on testing split |
-| **5-Fold CV ROC-AUC** | **88.7%** | Consistent performance across stratified splits |
-| **Test Split ROC-AUC** | **96.2%** | Outstanding class separation ability |
+| `SECRET_KEY` | **Yes** | Flask session secret. Generate with `python -c "import secrets; print(secrets.token_hex(32))"` |
+| `DATABASE_URL` | **Yes** | PostgreSQL connection string, e.g. `postgresql://user:pass@localhost:5432/heartcare_db` |
+| `PORT` | No | Port for the dev server (default: 8080). Cloud platforms set this automatically. |
 
-### 📈 Test Classification Report
+> **Security note:** Never commit `.env` to version control. It is listed in `.gitignore`.
+
+---
+
+## 🧠 Machine Learning
+
+### Dataset
+- **Source**: [Cleveland Heart Disease Dataset (UCI ML Repository)](https://archive.ics.uci.edu/dataset/45/heart+disease)
+- **Samples**: 303 patients
+- **Target**: Binary classification — `0` (no heart disease) / `1` (heart disease)
+- **Class balance**: 164 healthy, 139 diseased (roughly balanced; handled by `class_weight='balanced'`)
+
+### Features Used (13 clinical parameters)
+
+| Feature | Description |
+|---|---|
+| `age` | Age in years |
+| `sex` | Sex (1 = male, 0 = female) |
+| `cp` | Chest pain type (0–3) |
+| `trestbps` | Resting blood pressure (mmHg) |
+| `chol` | Serum cholesterol (mg/dl) |
+| `fbs` | Fasting blood sugar > 120 mg/dl (1 = true, 0 = false) |
+| `restecg` | Resting ECG results (0–2) |
+| `thalach` | Maximum heart rate achieved |
+| `exang` | Exercise-induced angina (1 = yes, 0 = no) |
+| `oldpeak` | ST depression induced by exercise relative to rest |
+| `slope` | Slope of peak exercise ST segment (0–2) |
+| `ca` | Number of major vessels colored by fluoroscopy (0–3) |
+| `thal` | Thalassemia (1 = normal, 2 = fixed defect, 3 = reversible defect) |
+
+### Preprocessing
+- No imputation required — the preprocessed CSV has no missing values (checked at load time).
+- No feature scaling applied — Random Forest is scale-invariant.
+- Class imbalance handled via `class_weight='balanced'` (equivalent to sample weighting by inverse class frequency).
+
+### Model
+- **Algorithm**: `RandomForestClassifier` (scikit-learn)
+- **Hyperparameters** (from `config/ml_config.yaml`):
+  - `n_estimators`: 200
+  - `max_depth`: 8
+  - `min_samples_split`: 10
+  - `min_samples_leaf`: 4
+  - `max_features`: "sqrt"
+  - `class_weight`: "balanced"
+  - `random_state`: 42
+- **Train/Test Split**: 80/20 stratified (`random_state=42`)
+
+### Model Artifact
+The trained model is saved as `models/heart_disease_model.pkl`, a Python dict:
+```python
+{'model': RandomForestClassifier, 'features': ['age', 'sex', ...]}  # 13 feature names
+```
+The feature name list ensures the Flask app always passes input in the correct column order.
+
+---
+
+## 📊 Verified Model Performance
+
+Metrics below are produced by running `python -m ml.evaluate` against the held-out test split (61 samples, `random_state=42`):
+
+| Metric | Score |
+|---|---|
+| **Test Accuracy** | 89% |
+| **Test ROC-AUC** | **96.21%** |
+| **Healthy Precision / Recall** | 93% / 85% |
+| **Diseased Precision / Recall** | 84% / 93% |
+| **Macro F1** | 0.89 |
+
+### Classification Report (Test Set — 61 samples)
 
 ```
               precision    recall  f1-score   support
@@ -207,31 +212,52 @@ The model achieves exceptional accuracy and generalization, showing no signs of 
     accuracy                           0.89        61
    macro avg       0.89      0.89      0.89        61
 weighted avg       0.89      0.89      0.89        61
+
+  Test ROC-AUC Score : 0.9621 (96.21%)
 ```
 
+> **Note on Recall:** For a heart disease screening tool, recall for the "Diseased" class (93%) is the most clinically important metric — it reflects the model's ability to correctly identify at-risk patients and minimize false negatives.
 
-### 🖼️ Visual Model Evaluation & Insights
+### Visual Evaluation Outputs
 
-Here are the visual evaluation outputs generated by the machine learning pipeline:
-
-#### 1. Confusion Matrix (Production Engine)
+#### Confusion Matrix (Test Set)
 ![Confusion Matrix](notebooks/plots/confusion_matrix.png)
 
-*Generated dynamically by the evaluation script, showing the true vs. predicted classifications on the test split.*
-
-#### 2. Model Evaluation Metrics (Confusion Matrix, ROC Curve, and Feature Importance - Training Phase)
+#### Model Evaluation (Training Phase — Notebook)
 ![Model Evaluation](notebooks/plots/model_evaluation.png)
 
-*The model displays exceptional performance on the test set, achieving a **95.3% ROC-AUC** and a balanced confusion matrix with very low false positive and false negative rates. The feature importance plot shows that **ca** (number of major vessels), **cp** (chest pain type), and **thalach** (max heart rate) are the strongest predictors.*
-
-#### 2. Exploratory Data Analysis & Target Distributions
+#### Exploratory Data Analysis
 ![EDA Overview](notebooks/plots/eda_overview.png)
 
-#### 3. Feature Correlation Matrix
+#### Feature Correlation Matrix
 ![Correlation Heatmap](notebooks/plots/correlation_heatmap.png)
 
-#### 4. Numerical Feature Distributions
+#### Feature Distributions
 ![Feature Distributions](notebooks/plots/feature_distributions.png)
+
+---
+
+## ⚙️ ML Pipeline CLI
+
+### Train the Model
+```bash
+python -m ml.train
+# Uses config/ml_config.yaml for hyperparameters and paths
+# Saves model to models/heart_disease_model.pkl
+```
+
+### Evaluate the Model
+```bash
+python -m ml.evaluate
+# Prints classification report + ROC-AUC to stdout
+# Saves confusion matrix plot to notebooks/plots/
+```
+
+### Run Tests
+```bash
+python -m pytest tests/ -v
+# Expected: 6 passed, 0 warnings
+```
 
 ---
 
@@ -240,25 +266,85 @@ Here are the visual evaluation outputs generated by the machine learning pipelin
 | Method | Endpoint | Auth | Description |
 |--------|----------|------|-------------|
 | GET | `/` | ❌ | Landing page |
+| GET | `/about` | ❌ | About page |
+| GET | `/termscondition` | ❌ | Terms & Medical Disclaimer |
 | GET | `/register` | ❌ | Registration page |
 | POST | `/register` | ❌ | Create account |
 | GET | `/login` | ❌ | Login page |
 | POST | `/login` | ❌ | Authenticate user |
 | GET | `/logout` | ✅ | Logout |
-| GET | `/main` | ✅ | Prediction form |
-| POST | `/predict` | ✅ | Run prediction |
-| GET | `/profile` | ✅ | User dashboard |
+| GET | `/main` | ✅ | Prediction input form |
+| POST | `/predict` | ✅ | Run prediction, save to history |
+| GET | `/profile` | ✅ | User profile + prediction history |
 | GET/POST | `/change-password` | ✅ | Update password |
-| POST | `/delete-history/<id>` | ✅ | Delete history entry |
-| GET | `/api/stats` | ✅ | JSON stats endpoint |
-| GET | `/about` | ❌ | About page |
-| GET | `/termscondition` | ❌ | Terms page |
+| POST | `/delete-history/<id>` | ✅ | Delete a history entry |
+| GET | `/api/stats` | ✅ | JSON stats for the current user |
 
 ---
 
-## ⚠️ Medical Disclaimer
+## 🚀 Deployment
 
-HeartCare AI is **for educational purposes only**. It is not a substitute for professional medical advice, diagnosis, or treatment. Always consult a qualified cardiologist for clinical decisions.
+### Heroku / Render / Railway
+
+The repository includes a `Procfile` for WSGI server deployment:
+```
+web: gunicorn app:app --workers 2 --timeout 120
+```
+
+**Deployment steps:**
+
+1. Create a PostgreSQL add-on (Heroku: `heroku addons:create heroku-postgresql:mini`)
+2. Set `SECRET_KEY` in the platform's environment variables
+3. The platform will inject `DATABASE_URL` and `PORT` automatically
+4. Deploy the repository
+
+> `config.py` automatically converts the legacy `postgres://` scheme (used by Heroku) to `postgresql://` as required by SQLAlchemy 2.x.
+
+**Run migrations after deploying:**
+```bash
+heroku run flask db upgrade
+# or equivalent for your platform
+```
+
+### Static Files
+Static assets are served directly by Flask in development. For production, consider serving them via a CDN or WhiteNoise.
+
+---
+
+## 🔒 Security Notes
+
+- Passwords are hashed with **bcrypt** (Flask-Bcrypt)
+- CSRF protection on all forms (Flask-WTF)
+- Open-redirect prevention on the login `next` parameter
+- `SECRET_KEY` and `DATABASE_URL` are loaded from environment variables only
+- `.env` is listed in `.gitignore` and must never be committed
+
+---
+
+## ⚠️ Limitations
+
+- **Dataset size**: 303 samples is small for a production medical classifier. Results should not be generalized without validation on a larger, more diverse dataset.
+- **Dataset origin**: The Cleveland dataset was collected in the 1980s. Clinical practices, patient populations, and diagnostic criteria have evolved since then.
+- **No calibration**: `predict_proba()` outputs are not formally probability-calibrated. The displayed percentage is the model's raw class probability, not a clinically validated risk score.
+- **Binary output**: The model predicts presence/absence of heart disease — it does not quantify severity.
+
+---
+
+## ⚕️ Medical Disclaimer
+
+**HeartCare AI is for educational and demonstration purposes only.**
+
+This application is not a medical device and has not been evaluated or approved by any health authority. It must not be used as a substitute for professional medical advice, diagnosis, or treatment. Always consult a qualified cardiologist or physician for any cardiac concerns.
+
+---
+
+## 🔮 Potential Future Improvements
+
+- Probability calibration (Platt scaling or isotonic regression) for more reliable risk percentages
+- Model comparison dashboard (Logistic Regression, Gradient Boosting, SVM) to provide transparency
+- Unit tests for Flask routes using a test database
+- Admin dashboard for aggregate anonymized statistics
+- WhiteNoise integration for efficient static file serving in production
 
 ---
 

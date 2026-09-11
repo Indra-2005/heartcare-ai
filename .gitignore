@@ -1,5 +1,6 @@
 # Python
 __pycache__/
+**/__pycache__/
 *.py[cod]
 *$py.class
 *.so
@@ -13,10 +14,10 @@ build/
 venv/
 env/
 .venv/
-.env/
 .conda/
 
-# Environment secrets
+# Environment secrets — DO NOT commit .env
+# To generate a new SECRET_KEY: python -c "import secrets; print(secrets.token_hex(32))"
 .env
 
 # Flask / Database
@@ -24,8 +25,8 @@ instance/
 *.db
 *.sqlite3
 
-# Migrations 
-migrations/versions/__pycache__/
+# Test/CI cache
+.pytest_cache/
 
 # IDE
 .vscode/
@@ -39,16 +40,27 @@ migrations/versions/__pycache__/
 Thumbs.db
 desktop.ini
 
-# Jupyter Notebooks output
-*.ipynb_checkpoints/
+# Jupyter Notebooks checkpoints
+.ipynb_checkpoints/
+**/.ipynb_checkpoints/
 
-
-
-# Static uploads 
+# Static uploads
 static/uploads/
 
 # Logs
 *.log
 
+# Compiled byte-code (belt-and-suspenders)
+*.pyc
+
 # Salesforce / Tooling
 .sfdx/
+
+# NOTE: If .env, .conda, __pycache__, or .pytest_cache were previously
+# committed, run the following to stop tracking them (files stay locally):
+#   git rm -r --cached .conda .pytest_cache __pycache__
+#   git rm --cached .env
+# Then commit the result. To fully purge from history (rewrites history):
+#   pip install git-filter-repo
+#   git filter-repo --invert-paths --path .env
+#   git push --force

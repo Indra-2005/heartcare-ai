@@ -52,14 +52,20 @@ def create_app():
 app = create_app()
 
 # ─── Load ML Model ────────────────────────────────────────────────────────────
-filename = os.path.join(os.path.dirname(__file__), 'models', 'heart_disease_model.pkl')
-with warnings.catch_warnings():
-    warnings.simplefilter('ignore')
-    with open(filename, 'rb') as f:
-        _model_data = pickle.load(f)
-    # The .pkl stores a dict {'model': classifier, 'features': [...], ...}
+_model_path = os.path.join(os.path.dirname(__file__), 'models', 'heart_disease_model.pkl')
+try:
+    with warnings.catch_warnings():
+        warnings.simplefilter('ignore')
+        with open(_model_path, 'rb') as f:
+            _model_data = pickle.load(f)
+    # The .pkl stores a dict {'model': classifier, 'features': [...]}
     model = _model_data['model'] if isinstance(_model_data, dict) else _model_data
     model_features = _model_data.get('features') if isinstance(_model_data, dict) else None
+except FileNotFoundError:
+    raise RuntimeError(
+        f"ML model not found at: {_model_path}\n"
+        "Run 'python -m ml.train' to train and save the model before starting the app."
+    )
 
 
 # ─── Helper ───────────────────────────────────────────────────────────────────
@@ -338,4 +344,7 @@ def server_error(e):
 
 
 if __name__ == '__main__':
-    app.run(host='127.0.0.1', port=8080, debug=False)
+    # PORT env var is set automatically by cloud platforms (Heroku, Render, Railway).
+    # Falls back to 8080 for local development.
+    port = int(os.environ.get('PORT', 8080))
+    app.run(host='0.0.0.0', port=port, debug=False)
